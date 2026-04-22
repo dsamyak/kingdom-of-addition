@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kingdom of Addition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Navbar / Header -->
+    <header class="app-header glass">
+      <div class="logo">
+        <span class="logo-icon">👑</span>
+        <span class="logo-text">Kingdom of <span class="hl">Addition</span></span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="mastery-progress" style="width: 0%"></div>
+      </div>
+      <button class="btn btn-icon" id="btn-home" title="Home">🏠</button>
+    </header>
+
+    <main class="main-content">
+      <!-- DASHBOARD VIEW -->
+      <section id="view-dashboard" class="view active">
+        <div class="hero glass-panel">
+          <h1>Module 2: <span class="gradient-text">Kingdom of Addition</span></h1>
+          <p>Master the art of addition through powerful visuals and Intellia's split-and-merge methods!</p>
+        </div>
+        
+        <div class="topics-grid" id="topics-grid">
+          <!-- Will be injected by JS -->
+        </div>
+      </section>
+
+      <!-- LESSON VIEW -->
+      <section id="view-lesson" class="view">
+        <div class="lesson-header glass">
+          <button class="btn btn-back" id="btn-back">← Back</button>
+          <h2 id="lesson-title">Topic Name</h2>
+          <div class="lesson-score">🎯 <span id="lesson-score-val">0</span>/<span id="lesson-score-max">5</span></div>
+        </div>
+
+        <div class="lesson-container">
+          <!-- LEARNING PHASE -->
+          <div id="phase-learning" class="phase-card glass animate-slide-up">
+            <div class="phase-badge badge-learning">📖 Learn First</div>
+            <h3 id="learn-subtitle">Concept Intro</h3>
+            <div class="visual-area" id="learn-visual"></div>
+            <div class="text-area" id="learn-text"></div>
+            <button class="btn btn-primary btn-large btn-glow" id="btn-understood">I Understand ✓</button>
+          </div>
+
+          <!-- TASK PHASE -->
+          <div id="phase-task" class="phase-card glass animate-slide-up" style="display:none;">
+            <div class="phase-badge badge-task">✏️ Practice</div>
+            <div class="task-question" id="task-question"></div>
+            <div class="visual-area" id="task-visual"></div>
+            
+            <div id="task-hint-container" style="display:none; text-align: left; margin: 1rem auto; max-width: 500px; width: 100%;">
+              <button class="btn btn-secondary" id="btn-show-hint" style="display: block; margin: 0 auto; color: var(--text-main); font-weight: 600;"><span style="font-size:1.2rem;">💡</span> Need a Hint?</button>
+              <div id="hint-text" style="display:none; margin-top: 1rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; border-radius: 8px; font-size:1.1rem; line-height: 1.5; color: var(--text-main);"></div>
+            </div>
+
+            <div class="answer-area" id="task-answers"></div>
+          </div>
+        </div>
+
+      </section>
+      
+      <!-- COMPLETION OVERLAY -->
+      <div class="modal-overlay" id="modal-completion" style="display:none;">
+        <div class="modal glass animate-pop">
+           <div class="modal-icon">🎉</div>
+           <h2>Topic Mastered!</h2>
+           <p>You've conquered <span id="completed-topic-name"></span></p>
+           <button class="btn btn-primary" id="btn-next-topic">Continue</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
