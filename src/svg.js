@@ -1,4 +1,4 @@
-const C={p:'#7f5af0',g:'#2cb67d',r:'#e53170',o:'#ff8906',c:'#06b6d4',w:'#fffffe',m:'#a7a9be',bg:'rgba(0,0,0,0.02)'};
+const C={p:'#7f5af0',g:'#2cb67d',r:'#e53170',o:'#ff8906',c:'#06b6d4',w:'#1e293b',m:'#64748b',bg:'rgba(0,0,0,0.02)'};
 const svgOpen=(w,h)=>`<svg viewBox="0 0 ${w} ${h}" width="100%" style="border-radius:14px;">`;
 const rect=(x,y,w,h,fill,rx=12,extra='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" ${extra}/>`;
 const txt=(x,y,text,fill=C.w,size=18,extra='')=>`<text x="${x}" y="${y}" text-anchor="middle" fill="${fill}" font-size="${size}" font-weight="700" font-family="Outfit" ${extra}>${text}</text>`;
@@ -48,7 +48,7 @@ export const SVG = {
     s+=txt(w/2,28,`${a} + ${b} = ${a+b}`,C.w,22);
     for(let i=min;i<=max;i++){
       const x=pad+(i-min)*step,hl=(i===a||i===(a+b));
-      s+=`<line x1="${x}" y1="${lineY-10}" x2="${x}" y2="${lineY+10}" stroke="#4a4a6a" stroke-width="2"/>`;
+      s+=`<line x1="${x}" y1="${lineY-10}" x2="${x}" y2="${lineY+10}" stroke="#cbd5e1" stroke-width="2"/>`;
       s+=txt(x,lineY+32,i,hl?C.o:C.w,hl?18:15);
     }
     // hop arcs with running total
@@ -185,13 +185,13 @@ export const SVG = {
   tenFrame(filled,total=10){
     const w=320,h=180;
     let s=svgOpen(w,h);
-    s+=rect(25,15,270,140,'none',12,`stroke="#4a4a6a" stroke-width="3"`);
+    s+=rect(25,15,270,140,'none',12,`stroke="#cbd5e1" stroke-width="3"`);
     for(let r=0;r<2;r++){
       for(let c=0;c<5;c++){
         const x=40+c*50,y=28+r*65,idx=r*5+c;
         const isFilled=idx<filled;
         const del=idx*0.07;
-        s+=`<rect x="${x}" y="${y}" width="40" height="40" rx="8" fill="${isFilled?C.p:'rgba(255,255,255,0.04)'}" stroke="${isFilled?'rgba(127,90,240,0.5)':'#3a3a5a'}" stroke-width="2" ${isFilled?fadeIn(del):''}/>`;
+        s+=`<rect x="${x}" y="${y}" width="40" height="40" rx="8" fill="${isFilled?C.p:'rgba(15,23,42,0.04)'}" stroke="${isFilled?'rgba(127,90,240,0.5)':'#cbd5e1'}" stroke-width="2" ${isFilled?fadeIn(del):''}/>`;
         if(isFilled) s+=`<text x="${x+20}" y="${y+27}" text-anchor="middle" fill="#fff" font-size="17" font-weight="800" font-family="Outfit" ${fadeIn(del+0.03)}>${idx+1}</text>`;
       }
     }
@@ -203,13 +203,13 @@ export const SVG = {
     let s=svgOpen(w,h);
     s+=txt(210,22,`${a} + ${b} = ${sum}`,C.w,18);
     // frame
-    s+=rect(40,35,270,140,'none',12,`stroke="#4a4a6a" stroke-width="3"`);
+    s+=rect(40,35,270,140,'none',12,`stroke="#cbd5e1" stroke-width="3"`);
     for(let r=0;r<2;r++){
       for(let c=0;c<5;c++){
         const x=52+c*50,y=48+r*62,idx=r*5+c;
         const isA=idx<a,isB=idx>=a&&idx<Math.min(sum,10);
-        const col=isA?C.p:isB?C.g:'rgba(255,255,255,0.04)';
-        const border=isA?C.p:isB?C.g:'#3a3a5a';
+        const col=isA?C.p:isB?C.g:'rgba(15,23,42,0.04)';
+        const border=isA?C.p:isB?C.g:'#cbd5e1';
         const del=idx*0.06;
         s+=`<rect x="${x}" y="${y}" width="42" height="42" rx="8" fill="${col}" fill-opacity="${isA||isB?'0.85':'1'}" stroke="${border}" stroke-width="2" ${(isA||isB)?fadeIn(del):''}/>`;
         if(isA||isB) s+=`<text x="${x+21}" y="${y+28}" text-anchor="middle" fill="#fff" font-size="15" font-weight="800" ${fadeIn(del+0.03)}>${idx+1}</text>`;
@@ -296,9 +296,56 @@ export const SVG = {
       s+=txt(480,122,sum,'#fff',32);
     } else {
       s+=txt(420,122,'=',C.o,38);
-      s+=`<circle cx="480" cy="115" r="36" fill="rgba(255,255,255,0.06)" stroke="#4a4a6a" stroke-width="3">${anim('r','34;38;34','2s','repeatCount="indefinite"')}</circle>`;
+      s+=`<circle cx="480" cy="115" r="36" fill="rgba(255,255,255,0.06)" stroke="#cbd5e1" stroke-width="3">${anim('r','34;38;34','2s','repeatCount="indefinite"')}</circle>`;
       s+=txt(480,122,'?','#64748b',38);
     }
     return s+'</svg>';
+  },
+
+  verticalAddition(a, b) {
+    const w = 300, h = 320;
+    let s = svgOpen(w, h);
+    const sum = a + b;
+    const aOnes = a % 10, aTens = Math.floor(a / 10);
+    const bOnes = b % 10, bTens = Math.floor(b / 10);
+    const sumOnes = sum % 10, sumTens = Math.floor(sum / 10);
+    const carry = (aOnes + bOnes >= 10) ? 1 : 0;
+    
+    // Draw columns background
+    s += rect(90, 40, 60, 240, 'rgba(127,90,240,0.08)', 8); // Tens column
+    s += rect(150, 40, 60, 240, 'rgba(44,182,125,0.08)', 8); // Ones column
+    
+    // Column Labels
+    s += txt(120, 65, 'Tens', C.p, 14);
+    s += txt(180, 65, 'Ones', C.g, 14);
+    
+    // Plus sign
+    s += txt(60, 160, '+', C.o, 32);
+    
+    // Number A
+    if (aTens > 0) s += txt(120, 115, aTens, C.p, 32, fadeIn(0.2));
+    s += txt(180, 115, aOnes, C.g, 32, fadeIn(0.3));
+    
+    // Number B
+    if (bTens > 0) s += txt(120, 165, bTens, C.p, 32, fadeIn(0.5));
+    s += txt(180, 165, bOnes, C.g, 32, fadeIn(0.6));
+    
+    // Line
+    s += `<line x1="50" y1="190" x2="250" y2="190" stroke="${C.m}" stroke-width="4" stroke-linecap="round" ${fadeIn(0.8)}/>`;
+    
+    // Carry over logic
+    if (carry) {
+      s += circ(120, 85, 12, 'rgba(245,158,11,0.2)', fadeIn(1.2));
+      s += txt(120, 90, '1', C.o, 14, fadeIn(1.25));
+      
+      // Animate carry arrow from ones to tens
+      s += `<path d="M 180 205 Q 150 230 120 105" fill="none" stroke="${C.o}" stroke-width="2" stroke-dasharray="4 4" opacity="0"><animate attributeName="opacity" values="0;0.5;0" dur="2s" begin="1.4s" repeatCount="indefinite"/></path>`;
+    }
+    
+    // Result
+    if (sumTens > 0) s += txt(120, 235, sumTens, C.p, 36, fadeIn(carry ? 1.8 : 1.2));
+    s += txt(180, 235, sumOnes, C.g, 36, fadeIn(carry ? 1.0 : 1.0));
+    
+    return s + '</svg>';
   }
 };

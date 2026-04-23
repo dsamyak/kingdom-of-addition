@@ -7,7 +7,9 @@ const TOPICS = [
   { id:'t3', title:'Addition Pattern', icon:'🔗', desc:'Spot the rule and fill the missing number' },
   { id:'t4', title:'Introduction to Addition', icon:'➕', desc:'Combine groups and learn what addition means' },
   { id:'t5', title:'Intellia\'s Method', icon:'🧠', desc:'Split-and-Merge: the smartest way to add!' },
-  { id:'t6', title:'Visualisation Bubble', icon:'🫧', desc:'Watch numbers merge inside floating bubbles' }
+  { id:'t6', title:'Visualisation Bubble', icon:'🫧', desc:'Watch numbers merge inside floating bubbles' },
+  { id:'t7', title:'Vertical Addition', icon:'🏗️', desc:'Stack numbers and carry over the tens' },
+  { id:'t8', title:'Word Problems', icon:'📚', desc:'Solve real-world math stories' }
 ];
 
 let state = {

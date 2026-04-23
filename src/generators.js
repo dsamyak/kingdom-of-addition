@@ -190,5 +190,72 @@ export const Generators = {
           hint:'Simply add the two numbers inside the bubbles!'};
       })
     ];
+  },
+
+  /* ===== T7: Vertical Addition ===== */
+  t7() {
+    return [
+      { isLearning:true, title:'Vertical Addition',
+        text:`When we add big numbers, we can stack them! Add the <b>Ones</b> column first (right side), then the <b>Tens</b> column (left side).`,
+        visual: SVG.verticalAddition(12, 15)
+      },
+      { isLearning:true, title:'Carrying Over',
+        text:`If the Ones column adds up to 10 or more, we <span class="highlight-text">carry over</span> the extra Ten to the Tens column! Watch 8 + 4 = 12.`,
+        visual: SVG.verticalAddition(18, 14)
+      },
+      ...Array.from({length:3},()=>{
+        const a=Math.floor(Math.random()*40)+10, b=Math.floor(Math.random()*30)+10, sum=a+b;
+        return { q:`Add these numbers vertically: ${a} + ${b} = ?`, visual:SVG.verticalAddition(a,b), ans:sum,
+          choices:uniq([sum,sum+10,sum-10>0?sum-10:sum+20,sum+1,sum-1]),
+          hint:'Add the Ones first, then add the Tens!'};
+      }),
+      { isLearning:true, title:'Big Numbers Carry',
+        text:`Let's try bigger numbers! 37 + 45. Add 7 + 5 = 12 (write 2, carry 1). Then 1 + 3 + 4 = 8. So, 82!`,
+        visual: SVG.verticalAddition(37, 45)
+      },
+      ...Array.from({length:3},()=>{
+        // Ensure a carry over happens
+        const aTens=Math.floor(Math.random()*5)+2, aOnes=Math.floor(Math.random()*4)+6;
+        const bTens=Math.floor(Math.random()*3)+1, bOnes=Math.floor(Math.random()*4)+6;
+        const a=aTens*10+aOnes, b=bTens*10+bOnes, sum=a+b;
+        return { q:`Solve the vertical addition: ${a} + ${b} = ?`, visual:SVG.verticalAddition(a,b), ans:sum,
+          choices:uniq([sum,sum-10,sum+10,sum+1]),
+          hint:'Don\\'t forget to carry the 1 from the Ones column to the Tens column!'};
+      })
+    ];
+  },
+
+  /* ===== T8: Word Problems ===== */
+  t8() {
+    return [
+      { isLearning:true, title:'Math in the Real World',
+        text:`Addition is everywhere! If you have <b>3 apples</b> and your friend gives you <b>2 more</b>, you are adding them together.`,
+        visual: SVG.groups(3,2,'🍎','🍎')
+      },
+      { isLearning:true, title:'Finding the Total',
+        text:`"Total", "Sum", "Altogether", "In all" — these words usually mean we need to <span class="highlight-text">add</span>!`,
+        visual: SVG.barModel(5,4)
+      },
+      ...Array.from({length:5},()=>{
+        const items = [
+          {emoji:'🎈', name:'balloons'},
+          {emoji:'🧸', name:'toys'},
+          {emoji:'🍪', name:'cookies'},
+          {emoji:'⭐', name:'stars'}
+        ];
+        const item = items[Math.floor(Math.random()*items.length)];
+        const a = Math.floor(Math.random()*6)+2, b = Math.floor(Math.random()*6)+2, sum=a+b;
+        const qTexts = [
+          `You have ${a} ${item.name} and find ${b} more. How many ${item.name} do you have altogether?`,
+          `There are ${a} ${item.name} in a box and ${b} ${item.name} on the table. What is the total?`,
+          `Anna bought ${a} ${item.name} and Ben bought ${b} ${item.name}. How many did they buy in all?`
+        ];
+        const qText = qTexts[Math.floor(Math.random()*qTexts.length)];
+        
+        return { q: qText, visual:SVG.groups(a,b,item.emoji,item.emoji,false), ans:sum,
+          choices:uniq([sum,sum+1,sum-1>0?sum-1:sum+2,sum+2]),
+          hint:`Add ${a} and ${b} to find the total number of ${item.name}.`};
+      })
+    ];
   }
 };
