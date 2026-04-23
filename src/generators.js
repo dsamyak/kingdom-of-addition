@@ -45,7 +45,7 @@ export const Generators = {
       },
       ...Array.from({length:3},()=>{
         const a=Math.floor(Math.random()*5)+1, b=Math.floor(Math.random()*4)+1, sum=a+b;
-        return { q:`Solve: ${a} + ${b} = ?`, visual:SVG.additionOnLine(0,10,a,b), ans:sum,
+        return { q:`Solve: ${a} + ${b} = ?`, visual:SVG.additionOnLine(0,10,a,b,false), ans:sum,
           choices:uniq([sum,sum+1,sum-1>0?sum-1:sum+3,sum+2]),
           hint:`Start at ${a} and hop ${b} times to the right!`};
       }),
@@ -55,7 +55,7 @@ export const Generators = {
       },
       ...Array.from({length:3},()=>{
         const a=Math.floor(Math.random()*5)+10, b=Math.floor(Math.random()*5)+1, sum=a+b;
-        return { q:`Solve: ${a} + ${b} = ?`, visual:SVG.additionOnLine(Math.max(0,a-2),Math.min(a+b+3,25),a,b), ans:sum,
+        return { q:`Solve: ${a} + ${b} = ?`, visual:SVG.additionOnLine(Math.max(0,a-2),Math.min(a+b+3,25),a,b,false), ans:sum,
           choices:uniq([sum,sum+1,sum-1,sum+2]),
           hint:`Start at ${a} and count ${b} jumps forward!`};
       })
@@ -123,7 +123,7 @@ export const Generators = {
         let visual = '';
         if (type === 0) visual = SVG.groups(a,b,'⭐','🌙',false);
         else if (type === 1) visual = SVG.dotArray(a,b,false);
-        else visual = SVG.barModel(a,b);
+        else visual = SVG.barModel(a,b,false);
 
         return { q:`Find the total: What is ${a} + ${b}?`, visual: visual, ans:sum,
           choices:uniq([sum,sum+1,sum-1>0?sum-1:sum+3,sum+2]),
@@ -155,7 +155,7 @@ export const Generators = {
         const a=Math.floor(Math.random()*3)+6, b=Math.floor(Math.random()*4)+3;
         const sum=a+b;
         const isFrame = Math.random() > 0.5;
-        return { q:`Use Intellia's method: ${a} + ${b} = ?`, visual: isFrame ? SVG.tenFrameAddition(a,b) : SVG.splitMerge(a,b), ans:sum,
+        return { q:`Use Intellia's method: ${a} + ${b} = ?`, visual: isFrame ? SVG.tenFrameAddition(a,b,false) : SVG.splitMerge(a,b,false), ans:sum,
           choices:uniq([sum,sum+1,sum-1,sum+2]),
           hint:`Split ${b} to make ${a} into 10 first, then add the rest!`};
       })
@@ -205,7 +205,7 @@ export const Generators = {
       },
       ...Array.from({length:3},()=>{
         const a=Math.floor(Math.random()*40)+10, b=Math.floor(Math.random()*30)+10, sum=a+b;
-        return { q:`Add these numbers vertically: ${a} + ${b} = ?`, visual:SVG.verticalAddition(a,b), ans:sum,
+        return { q:`Add these numbers vertically: ${a} + ${b} = ?`, visual:SVG.verticalAddition(a,b,false), ans:sum,
           choices:uniq([sum,sum+10,sum-10>0?sum-10:sum+20,sum+1,sum-1]),
           hint:'Add the Ones first, then add the Tens!'};
       }),
@@ -218,9 +218,9 @@ export const Generators = {
         const aTens=Math.floor(Math.random()*5)+2, aOnes=Math.floor(Math.random()*4)+6;
         const bTens=Math.floor(Math.random()*3)+1, bOnes=Math.floor(Math.random()*4)+6;
         const a=aTens*10+aOnes, b=bTens*10+bOnes, sum=a+b;
-        return { q:`Solve the vertical addition: ${a} + ${b} = ?`, visual:SVG.verticalAddition(a,b), ans:sum,
+        return { q:`Solve the vertical addition: ${a} + ${b} = ?`, visual:SVG.verticalAddition(a,b,false), ans:sum,
           choices:uniq([sum,sum-10,sum+10,sum+1]),
-          hint:'Don\\'t forget to carry the 1 from the Ones column to the Tens column!'};
+          hint:"Don't forget to carry the 1 from the Ones column to the Tens column!"};
       })
     ];
   },

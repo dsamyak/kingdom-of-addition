@@ -38,18 +38,22 @@ export const SVG = {
     return s+'</svg>';
   },
 
-  additionOnLine(min,max,a,b){
+  additionOnLine(min,max,a,b,showTotal=true){
     const w=620,h=230,pad=45,lineY=150,range=max-min,step=(w-pad*2)/range;
     let s=svgOpen(w,h);
     s+=`<defs><marker id="ha" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${C.p}"/></marker>`;
     s+=`<linearGradient id="alg"><stop offset="0%" stop-color="${C.p}"/><stop offset="100%" stop-color="${C.c}"/></linearGradient></defs>`;
     s+=`<line x1="${pad-15}" y1="${lineY}" x2="${w-pad+15}" y2="${lineY}" stroke="url(#alg)" stroke-width="4" stroke-linecap="round"/>`;
     // equation at top
-    s+=txt(w/2,28,`${a} + ${b} = ${a+b}`,C.w,22);
+    s+=txt(w/2,28, showTotal ? `${a} + ${b} = ${a+b}` : `${a} + ${b} = ?`, C.w,22);
     for(let i=min;i<=max;i++){
       const x=pad+(i-min)*step,hl=(i===a||i===(a+b));
       s+=`<line x1="${x}" y1="${lineY-10}" x2="${x}" y2="${lineY+10}" stroke="#cbd5e1" stroke-width="2"/>`;
-      s+=txt(x,lineY+32,i,hl?C.o:C.w,hl?18:15);
+      if (!showTotal && i === (a+b)) {
+        s+=txt(x,lineY+32,'?',hl?C.o:C.w,hl?18:15);
+      } else {
+        s+=txt(x,lineY+32,i,hl?C.o:C.w,hl?18:15);
+      }
     }
     // hop arcs with running total
     for(let j=0;j<b;j++){
@@ -58,12 +62,16 @@ export const SVG = {
       s+=`<path d="M ${fX} ${lineY} Q ${mX} ${lineY-50} ${tX} ${lineY}" fill="none" stroke="${C.p}" stroke-width="2.5" marker-end="url(#ha)" ${fadeIn(del)}/>`;
       s+=`<text x="${mX}" y="${lineY-55}" text-anchor="middle" fill="${C.r}" font-size="12" font-weight="800" font-family="Outfit" ${fadeIn(del+0.1)}>+1</text>`;
       // running total
-      if(j===b-1) s+=`<text x="${tX}" y="${lineY-70}" text-anchor="middle" fill="${C.g}" font-size="13" font-weight="700" font-family="Outfit" ${fadeIn(del+0.2)}>= ${a+b}</text>`;
+      if(showTotal && j===b-1) s+=`<text x="${tX}" y="${lineY-70}" text-anchor="middle" fill="${C.g}" font-size="13" font-weight="700" font-family="Outfit" ${fadeIn(del+0.2)}>= ${a+b}</text>`;
     }
     s+=circ(pad+(a-min)*step,lineY,8,C.g);
-    s+=circ(pad+(a+b-min)*step,lineY,8,C.r,`>${anim('r','8;12;8','1s','repeatCount="indefinite"')}</circle`);
-    s+=txt(pad+(a-min)*step,lineY-18,`Start`,C.g,11);
-    s+=txt(pad+(a+b-min)*step,lineY-18,`Land`,C.r,11);
+    if(showTotal) {
+      s+=circ(pad+(a+b-min)*step,lineY,8,C.r,`>${anim('r','8;12;8','1s','repeatCount="indefinite"')}</circle`);
+      s+=txt(pad+(a+b-min)*step,lineY-18,`Land`,C.r,11);
+    } else {
+      s+=circ(pad+(a+b-min)*step,lineY,8,C.r);
+      s+=txt(pad+(a+b-min)*step,lineY-18,`?`,C.r,14);
+    }
     return s+'</svg>';
   },
 
@@ -119,13 +127,13 @@ export const SVG = {
     return s+'</svg>';
   },
 
-  barModel(a,b){
+  barModel(a,b,showTotal=true){
     const w=500,h=170,sum=a+b;
     const barW=400,barH=45,startX=50,topY=30,botY=95;
     let s=svgOpen(w,h);
     // whole bar on top
     s+=rect(startX,topY,barW,barH,`rgba(6,182,212,0.15)`,10,`stroke="${C.c}" stroke-width="2"`);
-    s+=txt(startX+barW/2,topY+barH/2+6,sum,C.c,22);
+    s+=txt(startX+barW/2,topY+barH/2+6, showTotal ? sum : '?', C.c,22);
     // arrow down
     s+=`<line x1="250" y1="${topY+barH+5}" x2="250" y2="${botY-5}" stroke="${C.m}" stroke-width="2" stroke-dasharray="4 3"/>`;
     // part bars
@@ -134,24 +142,24 @@ export const SVG = {
     s+=txt(startX+wA/2,botY+barH/2+6,a,C.p,20);
     s+=rect(startX+wA+4,botY,wB-4,barH,`rgba(44,182,125,0.2)`,10,`stroke="${C.g}" stroke-width="2"`);
     s+=txt(startX+wA+wB/2,botY+barH/2+6,b,C.g,20);
-    s+=txt(250,botY+barH+25,`${a} + ${b} = ${sum}`,C.w,16);
+    s+=txt(250,botY+barH+25, showTotal ? `${a} + ${b} = ${sum}` : `${a} + ${b} = ?`, C.w,16);
     return s+'</svg>';
   },
 
-  numberBond(a,b){
+  numberBond(a,b,showTotal=true){
     const w=300,h=220,sum=a+b;
     let s=svgOpen(w,h);
     // whole at top
     s+=`<line x1="150" y1="55" x2="80" y2="135" stroke="${C.m}" stroke-width="2"/>`;
     s+=`<line x1="150" y1="55" x2="220" y2="135" stroke="${C.m}" stroke-width="2"/>`;
     s+=circ(150,40,30,`rgba(6,182,212,0.2)`,`stroke="${C.c}" stroke-width="2"`);
-    s+=txt(150,47,sum,C.c,24);
+    s+=txt(150,47, showTotal ? sum : '?', C.c,24);
     // parts
     s+=circ(80,150,28,`rgba(127,90,240,0.2)`,`stroke="${C.p}" stroke-width="2"`);
     s+=txt(80,157,a,C.p,22);
     s+=circ(220,150,28,`rgba(44,182,125,0.2)`,`stroke="${C.g}" stroke-width="2"`);
     s+=txt(220,157,b,C.g,22);
-    s+=txt(150,210,`${a} + ${b} = ${sum}`,C.w,14);
+    s+=txt(150,210, showTotal ? `${a} + ${b} = ${sum}` : `${a} + ${b} = ?`, C.w,14);
     return s+'</svg>';
   },
 
@@ -198,10 +206,10 @@ export const SVG = {
     return s+'</svg>';
   },
 
-  tenFrameAddition(a,b){
+  tenFrameAddition(a,b,showTotal=true){
     const w=420,h=220,sum=a+b;
     let s=svgOpen(w,h);
-    s+=txt(210,22,`${a} + ${b} = ${sum}`,C.w,18);
+    s+=txt(210,22, showTotal ? `${a} + ${b} = ${sum}` : `${a} + ${b} = ?`, C.w,18);
     // frame
     s+=rect(40,35,270,140,'none',12,`stroke="#cbd5e1" stroke-width="3"`);
     for(let r=0;r<2;r++){
@@ -229,7 +237,7 @@ export const SVG = {
     return s+'</svg>';
   },
 
-  splitMerge(a,b){
+  splitMerge(a,b,showTotal=true){
     const sum=a+b,need=10-a,left=b-need;
     const w=500,h=290;
     let s=svgOpen(w,h);
@@ -260,7 +268,7 @@ export const SVG = {
     s+=`<rect x="330" y="200" width="80" height="50" rx="14" fill="${C.o}" ${fadeIn(1.1)}/>`;
     s+=`<text x="370" y="232" text-anchor="middle" fill="#fff" font-size="24" font-weight="800" ${fadeIn(1.15)}>${left}</text>`;
     // Final answer
-    s+=`<text x="250" y="280" text-anchor="middle" fill="${C.w}" font-size="22" font-weight="800" font-family="Outfit" ${fadeIn(1.3)}>= ${sum}</text>`;
+    s+=`<text x="250" y="280" text-anchor="middle" fill="${C.w}" font-size="22" font-weight="800" font-family="Outfit" ${fadeIn(1.3)}>= ${showTotal ? sum : '?'}</text>`;
     return s+'</svg>';
   },
 
@@ -302,7 +310,7 @@ export const SVG = {
     return s+'</svg>';
   },
 
-  verticalAddition(a, b) {
+  verticalAddition(a, b, showTotal=true) {
     const w = 300, h = 320;
     let s = svgOpen(w, h);
     const sum = a + b;
@@ -343,8 +351,13 @@ export const SVG = {
     }
     
     // Result
-    if (sumTens > 0) s += txt(120, 235, sumTens, C.p, 36, fadeIn(carry ? 1.8 : 1.2));
-    s += txt(180, 235, sumOnes, C.g, 36, fadeIn(carry ? 1.0 : 1.0));
+    if (showTotal) {
+      if (sumTens > 0) s += txt(120, 235, sumTens, C.p, 36, fadeIn(carry ? 1.8 : 1.2));
+      s += txt(180, 235, sumOnes, C.g, 36, fadeIn(carry ? 1.0 : 1.0));
+    } else {
+      if (sumTens > 0) s += txt(120, 235, '?', C.p, 36, fadeIn(carry ? 1.8 : 1.2));
+      s += txt(180, 235, '?', C.g, 36, fadeIn(carry ? 1.0 : 1.0));
+    }
     
     return s + '</svg>';
   }
