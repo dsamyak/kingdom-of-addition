@@ -105,26 +105,29 @@ export const Generators = {
         text:`<span class="highlight-text">Addition</span> means putting groups together. If you have 3 🍎 apples and get 2 🍊 oranges, you have 3 + 2 = 5 fruits in total!`,
         visual: SVG.groups(3,2)
       },
-      { isLearning:true, title:'Combining Groups',
-        text:`Think of addition as merging two baskets. Basket A has 4 items, Basket B has 3 items. Together: 4 + 3 = 7 items!`,
-        visual: SVG.groups(4,3,'🟣','🔵')
+      { isLearning:true, title:'Dot Array Method',
+        text:`We can count items one by one. Here we have 4 purple dots and 3 green dots. We just count them all up to get the total!`,
+        visual: SVG.dotArray(4,3)
+      },
+      { isLearning:true, title:'Bar Models',
+        text:`A <span class="highlight-text">Bar Model</span> shows the parts and the whole. The long top bar is the total (sum), and the shorter bottom bars are the parts that add up to it.`,
+        visual: SVG.barModel(5,3)
+      },
+      { isLearning:true, title:'Number Bonds',
+        text:`A <span class="highlight-text">Number Bond</span> is a diagram showing how two parts connect to make a whole. 4 and 2 combine to make 6!`,
+        visual: SVG.numberBond(4,2)
       },
       ...Array.from({length:3},()=>{
         const a=Math.floor(Math.random()*5)+1, b=Math.floor(Math.random()*5)+1, sum=a+b;
-        const emojis=[['🍎','🍊'],['🟣','🔵'],['⭐','🌙'],['🐱','🐶']][Math.floor(Math.random()*4)];
-        return { q:`Count all items. What is ${a} + ${b}?`, visual:SVG.groups(a,b,emojis[0],emojis[1],false), ans:sum,
+        const type = Math.floor(Math.random() * 3);
+        let visual = '';
+        if (type === 0) visual = SVG.groups(a,b,'⭐','🌙',false);
+        else if (type === 1) visual = SVG.dotArray(a,b,false);
+        else visual = SVG.barModel(a,b);
+
+        return { q:`Find the total: What is ${a} + ${b}?`, visual: visual, ans:sum,
           choices:uniq([sum,sum+1,sum-1>0?sum-1:sum+3,sum+2]),
-          hint:'Count all items in both boxes together!'};
-      }),
-      { isLearning:true, title:'Order Doesn\'t Matter!',
-        text:`A magical rule: 5 + 3 = 3 + 5. Both equal 8! This is called the <span class="highlight-text">Commutative Property</span>. Swapping doesn't change the total.`,
-        visual: SVG.groups(5,3,'🌟','💎')
-      },
-      ...Array.from({length:3},()=>{
-        const a=Math.floor(Math.random()*6)+2, b=Math.floor(Math.random()*6)+2, sum=a+b;
-        return { q:`What is ${a} + ${b}?`, visual:SVG.groups(a,b,'🟢','🔴',false), ans:sum,
-          choices:uniq([sum,sum+1,sum-1>0?sum-1:sum+3,a*b>sum?a*b:sum+4]),
-          hint:'Count the green circles, then count the red ones, and add them!'};
+          hint:'Count all items from both groups to find the total!'};
       })
     ];
   },
@@ -133,34 +136,28 @@ export const Generators = {
   t5() {
     return [
       { isLearning:true, title:'Intellia\'s Split-and-Merge',
-        text:`<span class="highlight-text">Intellia's Method</span> is a powerful mental math trick! To add numbers, we <b>split</b> one number to first <b>make 10</b>, then add the leftover. This makes hard sums easy!`,
+        text:`<span class="highlight-text">Intellia's Method</span> is a powerful trick! To add numbers, we <b>split</b> one number to first <b>make 10</b>, then add the leftover. This makes hard sums easy!`,
         visual: SVG.splitMerge(8,5)
       },
+      { isLearning:true, title:'The 10-Frame Helper',
+        text:`A <span class="highlight-text">10-Frame</span> has 10 slots. If we fill 8 slots, there are 2 empty. Adding 5 fills the remaining 2 slots (making 10), and leaves 3 outside. 10 + 3 = 13!`,
+        visual: SVG.tenFrameAddition(8,5)
+      },
       { isLearning:true, title:'How It Works: 7 + 6',
-        text:`Step 1: We need 3 more to make 7 into 10. Split 6 into 3 and 3.<br>Step 2: 7 + 3 = 10.<br>Step 3: 10 + 3 = <b>13</b>. Done! Faster than counting one by one.`,
+        text:`Step 1: We need 3 more to make 7 into 10. Split 6 into 3 and 3.<br>Step 2: 7 + 3 = 10.<br>Step 3: 10 + 3 = <b>13</b>. Done!`,
         visual: SVG.splitMerge(7,6)
       },
-      { isLearning:true, title:'The 10-Frame Helper',
-        text:`A <span class="highlight-text">10-Frame</span> has 10 slots. Fill it up first — whatever is left over goes outside. 8 fills 8 slots; adding 5 fills the remaining 2 and leaves 3 outside. Total: 13!`,
-        visual: SVG.tenFrame(10)
+      { isLearning:true, title:'Another 10-Frame Example',
+        text:`Let's add 9 and 4. The 9 frame has 1 empty slot. The 4 fills that 1 slot to make 10, leaving 3 left over. Result is 13!`,
+        visual: SVG.tenFrameAddition(9,4)
       },
-      ...Array.from({length:3},()=>{
+      ...Array.from({length:4},()=>{
         const a=Math.floor(Math.random()*3)+6, b=Math.floor(Math.random()*4)+3;
         const sum=a+b;
-        return { q:`Use Intellia's method: ${a} + ${b} = ?`, visual:SVG.splitMerge(a,b), ans:sum,
+        const isFrame = Math.random() > 0.5;
+        return { q:`Use Intellia's method: ${a} + ${b} = ?`, visual: isFrame ? SVG.tenFrameAddition(a,b) : SVG.splitMerge(a,b), ans:sum,
           choices:uniq([sum,sum+1,sum-1,sum+2]),
           hint:`Split ${b} to make ${a} into 10 first, then add the rest!`};
-      }),
-      { isLearning:true, title:'Intellia\'s Formula',
-        text:`<b>Formula:</b> a + b = (a + x) + (b − x) where x = 10 − a.<br><br>Example: 9 + 7 → x = 10 − 9 = 1 → Split 7 into 1 and 6 → 10 + 6 = <b>16</b>`,
-        visual: SVG.splitMerge(9,7)
-      },
-      ...Array.from({length:3},()=>{
-        const a=Math.floor(Math.random()*3)+7, b=Math.floor(Math.random()*5)+4;
-        const sum=a+b;
-        return { q:`Use Intellia's method: ${a} + ${b} = ?`, visual:SVG.splitMerge(a,b), ans:sum,
-          choices:uniq([sum,sum+1,sum-1>0?sum-1:sum+3,sum+2]),
-          hint:`Find how much ${a} needs to reach 10, split ${b} that way!`};
       })
     ];
   },

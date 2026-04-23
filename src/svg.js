@@ -1,159 +1,304 @@
+const C={p:'#7f5af0',g:'#2cb67d',r:'#e53170',o:'#ff8906',c:'#06b6d4',w:'#fffffe',m:'#a7a9be',bg:'rgba(0,0,0,0.02)'};
+const svgOpen=(w,h)=>`<svg viewBox="0 0 ${w} ${h}" width="100%" style="border-radius:14px;">`;
+const rect=(x,y,w,h,fill,rx=12,extra='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" ${extra}/>`;
+const txt=(x,y,text,fill=C.w,size=18,extra='')=>`<text x="${x}" y="${y}" text-anchor="middle" fill="${fill}" font-size="${size}" font-weight="700" font-family="Outfit" ${extra}>${text}</text>`;
+const circ=(cx,cy,r,fill,extra='')=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" ${extra}/>`;
+const anim=(attr,vals,dur,extra='')=>`<animate attributeName="${attr}" values="${vals}" dur="${dur}" ${extra}/>`;
+const fadeIn=(delay=0)=>`opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="${delay}s"/`;
+
 export const SVG = {
-  numberLine(min, max, highlights=[], showHop=false, hiddenValue=null) {
-    const w=600,h=200,pad=40,lineY=120,range=max-min,step=(w-pad*2)/range;
-    let s=`<svg viewBox="0 0 ${w} ${h}" width="100%" height="250" style="background:rgba(0,0,0,0.02);border-radius:12px;">`;
-    s+=`<line x1="${pad-20}" y1="${lineY}" x2="${w-pad+20}" y2="${lineY}" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>`;
+  numberLine(min,max,highlights=[],showHop=false,hiddenValue=null){
+    const w=620,h=210,pad=45,lineY=125,range=max-min,step=(w-pad*2)/range;
+    let s=svgOpen(w,h);
+    // gradient defs
+    s+=`<defs><linearGradient id="nlg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="${C.p}" stop-opacity="0.6"/><stop offset="100%" stop-color="${C.c}" stop-opacity="0.6"/></linearGradient></defs>`;
+    // main line with gradient
+    s+=`<line x1="${pad-15}" y1="${lineY}" x2="${w-pad+15}" y2="${lineY}" stroke="url(#nlg)" stroke-width="4" stroke-linecap="round"/>`;
     for(let i=min;i<=max;i++){
-      const x=pad+(i-min)*step, hl=highlights.includes(i), col=hl?'#d97706':'#fffffe';
-      s+=`<line x1="${x}" y1="${lineY-10}" x2="${x}" y2="${lineY+10}" stroke="#64748b" stroke-width="${hl?4:2}"/>`;
-      if(i===hiddenValue) s+=`<text x="${x}" y="${lineY+35}" text-anchor="middle" font-size="24">🐸</text>`;
-      else s+=`<text x="${x}" y="${lineY+35}" text-anchor="middle" fill="${col}" font-weight="${hl?'bold':'normal'}" font-size="18" font-family="Outfit">${i}</text>`;
-      if(hl&&!showHop) s+=`<circle cx="${x}" cy="${lineY}" r="8" fill="#f59e0b"><animate attributeName="r" values="8;12;8" dur="1s" repeatCount="indefinite"/></circle>`;
+      const x=pad+(i-min)*step,hl=highlights.includes(i);
+      s+=`<line x1="${x}" y1="${lineY-12}" x2="${x}" y2="${lineY+12}" stroke="${hl?C.o:'#4a4a6a'}" stroke-width="${hl?3:2}"/>`;
+      if(i===hiddenValue){
+        s+=`<text x="${x}" y="${lineY+38}" text-anchor="middle" font-size="26">🐸</text>`;
+        s+=circ(x,lineY,10,'rgba(245,158,11,0.3)',`>${anim('r','10;16;10','1.2s','repeatCount="indefinite"')}</circle`);
+      } else {
+        const col=hl?C.o:C.w;
+        const del=(i-min)*0.04;
+        s+=`<text x="${x}" y="${lineY+36}" text-anchor="middle" fill="${col}" font-weight="${hl?'800':'500'}" font-size="${hl?20:16}" font-family="Outfit" ${fadeIn(del)}>${i}</text>`;
+      }
+      if(hl&&!showHop) s+=circ(x,lineY,7,C.o,`>${anim('r','7;11;7','1s','repeatCount="indefinite"')}</circle`);
     }
     if(showHop&&highlights.length>=2){
-      const from=highlights[0],to=highlights[highlights.length-1];
-      const fX=pad+(from-min)*step,tX=pad+(to-min)*step,mX=(fX+tX)/2;
-      s+=`<defs><marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#10b981"/></marker></defs>`;
-      s+=`<path d="M ${fX} ${lineY} Q ${mX} 40 ${tX} ${lineY}" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="10 5" marker-end="url(#arr)"><animate attributeName="stroke-dashoffset" from="100" to="0" dur="2s" repeatCount="indefinite"/></path>`;
-      s+=`<text x="${tX}" y="${lineY-30}" text-anchor="middle" font-size="28">🐸</text>`;
+      const f=highlights[0],t=highlights[highlights.length-1];
+      const fX=pad+(f-min)*step,tX=pad+(t-min)*step,mX=(fX+tX)/2;
+      s+=`<defs><marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="${C.g}"/></marker></defs>`;
+      s+=`<path d="M ${fX} ${lineY} Q ${mX} 30 ${tX} ${lineY}" fill="none" stroke="${C.g}" stroke-width="3.5" stroke-dasharray="10 5" marker-end="url(#arr)">${anim('stroke-dashoffset','80;0','2s','repeatCount="indefinite"')}</path>`;
+      s+=`<text x="${tX}" y="${lineY-35}" text-anchor="middle" font-size="30">🐸</text>`;
+      s+=`<text x="${mX}" y="22" text-anchor="middle" fill="${C.g}" font-size="14" font-weight="700" font-family="Outfit">${f} → ${t}</text>`;
     }
-    return s+`</svg>`;
+    return s+'</svg>';
   },
 
-  additionOnLine(min, max, a, b) {
-    const w=600,h=220,pad=40,lineY=140,range=max-min,step=(w-pad*2)/range;
-    let s=`<svg viewBox="0 0 ${w} ${h}" width="100%" height="260" style="background:rgba(0,0,0,0.02);border-radius:12px;">`;
-    s+=`<defs><marker id="ha" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7f5af0"/></marker></defs>`;
-    s+=`<line x1="${pad-20}" y1="${lineY}" x2="${w-pad+20}" y2="${lineY}" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>`;
+  additionOnLine(min,max,a,b){
+    const w=620,h=230,pad=45,lineY=150,range=max-min,step=(w-pad*2)/range;
+    let s=svgOpen(w,h);
+    s+=`<defs><marker id="ha" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${C.p}"/></marker>`;
+    s+=`<linearGradient id="alg"><stop offset="0%" stop-color="${C.p}"/><stop offset="100%" stop-color="${C.c}"/></linearGradient></defs>`;
+    s+=`<line x1="${pad-15}" y1="${lineY}" x2="${w-pad+15}" y2="${lineY}" stroke="url(#alg)" stroke-width="4" stroke-linecap="round"/>`;
+    // equation at top
+    s+=txt(w/2,28,`${a} + ${b} = ${a+b}`,C.w,22);
     for(let i=min;i<=max;i++){
-      const x=pad+(i-min)*step;
-      const hl=i===a||i===(a+b);
-      s+=`<line x1="${x}" y1="${lineY-10}" x2="${x}" y2="${lineY+10}" stroke="#64748b" stroke-width="2"/>`;
-      s+=`<text x="${x}" y="${lineY+30}" text-anchor="middle" fill="${hl?'#ff8906':'#fffffe'}" font-weight="${hl?'bold':'normal'}" font-size="16" font-family="Outfit">${i}</text>`;
+      const x=pad+(i-min)*step,hl=(i===a||i===(a+b));
+      s+=`<line x1="${x}" y1="${lineY-10}" x2="${x}" y2="${lineY+10}" stroke="#4a4a6a" stroke-width="2"/>`;
+      s+=txt(x,lineY+32,i,hl?C.o:C.w,hl?18:15);
     }
-    // Draw individual hops
+    // hop arcs with running total
     for(let j=0;j<b;j++){
-      const fromX=pad+(a+j-min)*step, toX=pad+(a+j+1-min)*step, midX=(fromX+toX)/2;
-      s+=`<path d="M ${fromX} ${lineY} Q ${midX} ${lineY-45} ${toX} ${lineY}" fill="none" stroke="#7f5af0" stroke-width="3" marker-end="url(#ha)"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="${j*0.3}s"/></path>`;
-      s+=`<text x="${midX}" y="${lineY-50}" text-anchor="middle" fill="#e53170" font-size="13" font-weight="bold" font-family="Outfit"><animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="${j*0.3+0.1}s"/>+1</text>`;
+      const fX=pad+(a+j-min)*step,tX=pad+(a+j+1-min)*step,mX=(fX+tX)/2;
+      const del=j*0.25;
+      s+=`<path d="M ${fX} ${lineY} Q ${mX} ${lineY-50} ${tX} ${lineY}" fill="none" stroke="${C.p}" stroke-width="2.5" marker-end="url(#ha)" ${fadeIn(del)}/>`;
+      s+=`<text x="${mX}" y="${lineY-55}" text-anchor="middle" fill="${C.r}" font-size="12" font-weight="800" font-family="Outfit" ${fadeIn(del+0.1)}>+1</text>`;
+      // running total
+      if(j===b-1) s+=`<text x="${tX}" y="${lineY-70}" text-anchor="middle" fill="${C.g}" font-size="13" font-weight="700" font-family="Outfit" ${fadeIn(del+0.2)}>= ${a+b}</text>`;
     }
-    s+=`<circle cx="${pad+(a-min)*step}" cy="${lineY}" r="8" fill="#2cb67d"/>`;
-    s+=`<circle cx="${pad+(a+b-min)*step}" cy="${lineY}" r="8" fill="#e53170"><animate attributeName="r" values="8;12;8" dur="1s" repeatCount="indefinite"/></circle>`;
-    s+=`<text x="${pad+(a-min)*step}" y="${lineY-20}" text-anchor="middle" font-size="13" fill="#2cb67d" font-weight="bold">Start: ${a}</text>`;
-    s+=`<text x="${pad+(a+b-min)*step}" y="${lineY-20}" text-anchor="middle" font-size="13" fill="#e53170" font-weight="bold">Land: ${a+b}</text>`;
-    s+=`<text x="${w/2}" y="25" text-anchor="middle" fill="#fffffe" font-size="20" font-weight="800" font-family="Outfit">${a} + ${b} = ${a+b}</text>`;
-    return s+`</svg>`;
+    s+=circ(pad+(a-min)*step,lineY,8,C.g);
+    s+=circ(pad+(a+b-min)*step,lineY,8,C.r,`>${anim('r','8;12;8','1s','repeatCount="indefinite"')}</circle`);
+    s+=txt(pad+(a-min)*step,lineY-18,`Start`,C.g,11);
+    s+=txt(pad+(a+b-min)*step,lineY-18,`Land`,C.r,11);
+    return s+'</svg>';
   },
 
-  groups(countA, countB, emojiA='🍎', emojiB='🍊', showTotal=true) {
-    const w=500,h=200;
-    let s=`<svg viewBox="0 0 ${w} ${h}" width="100%" height="220" style="background:rgba(0,0,0,0.02);border-radius:12px;">`;
-    // Group A
-    s+=`<rect x="20" y="30" width="180" height="120" rx="14" fill="rgba(127,90,240,0.12)" stroke="#7f5af0" stroke-width="2"/>`;
+  groups(countA,countB,emojiA='🍎',emojiB='🍊',showTotal=true){
+    const w=520,h=220;
+    let s=svgOpen(w,h);
+    // Group A box
+    s+=rect(20,25,195,130,`rgba(127,90,240,0.10)`,14,`stroke="${C.p}" stroke-width="2"`);
+    s+=txt(117,20,`Group A`,C.p,13);
     for(let i=0;i<countA;i++){
-      const col=i%5, row=Math.floor(i/5);
-      s+=`<text x="${40+col*32}" y="${75+row*35}" font-size="26"><animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="${i*0.08}s"/>${emojiA}</text>`;
+      const col=i%5,row=Math.floor(i/5),del=i*0.07;
+      s+=`<text x="${42+col*34}" y="${72+row*38}" font-size="28" ${fadeIn(del)}>${emojiA}</text>`;
+      // count label
+      s+=`<text x="${42+col*34+12}" y="${82+row*38+14}" text-anchor="middle" fill="${C.p}" font-size="10" font-weight="800" ${fadeIn(del+0.05)}>${i+1}</text>`;
     }
-    // Plus sign
-    s+=`<text x="230" y="105" text-anchor="middle" fill="#ff8906" font-size="40" font-weight="900" font-family="Outfit">+</text>`;
-    // Group B
-    s+=`<rect x="270" y="30" width="180" height="120" rx="14" fill="rgba(44,182,125,0.12)" stroke="#2cb67d" stroke-width="2"/>`;
+    s+=txt(240,108,'+',C.o,42);
+    // Group B box
+    s+=rect(285,25,195,130,`rgba(44,182,125,0.10)`,14,`stroke="${C.g}" stroke-width="2"`);
+    s+=txt(382,20,`Group B`,C.g,13);
     for(let i=0;i<countB;i++){
-      const col=i%5, row=Math.floor(i/5);
-      s+=`<text x="${290+col*32}" y="${75+row*35}" font-size="26"><animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="${(countA+i)*0.08}s"/>${emojiB}</text>`;
+      const col=i%5,row=Math.floor(i/5),del=(countA+i)*0.07;
+      s+=`<text x="${307+col*34}" y="${72+row*38}" font-size="28" ${fadeIn(del)}>${emojiB}</text>`;
+      s+=`<text x="${307+col*34+12}" y="${82+row*38+14}" text-anchor="middle" fill="${C.g}" font-size="10" font-weight="800" ${fadeIn(del+0.05)}>${countA+i+1}</text>`;
     }
     if(showTotal){
-      s+=`<text x="250" y="185" text-anchor="middle" fill="#fffffe" font-size="22" font-weight="800" font-family="Outfit">${countA} + ${countB} = ${countA+countB}</text>`;
+      const del=(countA+countB)*0.07+0.2;
+      s+=`<text x="260" y="195" text-anchor="middle" fill="${C.w}" font-size="22" font-weight="800" font-family="Outfit" ${fadeIn(del)}>${countA} + ${countB} = ${countA+countB}</text>`;
     }
-    return s+`</svg>`;
+    return s+'</svg>';
   },
 
-  patternBridge(nums, rule) {
-    let s=`<svg viewBox="0 0 500 150" width="100%" height="200" style="background:rgba(0,0,0,0.02)">`;
-    s+=`<path d="M50 70 Q 150 20 250 70 T 450 70" fill="none" stroke="#06b6d4" stroke-width="4" stroke-dasharray="8 4"/>`;
-    const xP=[50,150,250,350,450], yP=[70,45,70,45,70];
-    nums.forEach((n,i)=>{
-      const col=n==='?'?'#f59e0b':'#7c3aed';
-      s+=`<circle cx="${xP[i]}" cy="${yP[i]}" r="20" fill="${col}"/>`;
-      s+=`<text x="${xP[i]}" y="${yP[i]+5}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14">${n}</text>`;
-    });
-    if(rule) s+=`<text x="250" y="130" text-anchor="middle" fill="#a7a9be" font-size="16">${rule}</text>`;
-    return s+`</svg>`;
+  dotArray(countA,countB,showTotal=true){
+    const w=500,h=200,dotR=12,gap=32;
+    let s=svgOpen(w,h);
+    const total=countA+countB,startX=(w-(total*gap))/2+dotR;
+    for(let i=0;i<total;i++){
+      const x=startX+i*gap,y=90;
+      const isA=i<countA,col=isA?C.p:C.g;
+      const del=i*0.06;
+      s+=`<circle cx="${x}" cy="${y}" r="${dotR}" fill="${col}" ${fadeIn(del)}/>`;
+      s+=`<text x="${x}" y="${y+5}" text-anchor="middle" fill="#fff" font-size="11" font-weight="800" ${fadeIn(del+0.03)}>${i+1}</text>`;
+    }
+    // divider line
+    if(countA>0&&countB>0){
+      const dx=startX+countA*gap-gap/2;
+      s+=`<line x1="${dx}" y1="60" x2="${dx}" y2="120" stroke="${C.o}" stroke-width="2" stroke-dasharray="4 3"/>`;
+      s+=txt(startX+((countA-1)*gap)/2,55,countA,C.p,14);
+      s+=txt(startX+countA*gap+((countB-1)*gap)/2,55,countB,C.g,14);
+    }
+    if(showTotal){
+      s+=`<text x="250" y="160" text-anchor="middle" fill="${C.w}" font-size="20" font-weight="800" font-family="Outfit" ${fadeIn(total*0.06+0.2)}>${countA} + ${countB} = ${total}</text>`;
+    }
+    return s+'</svg>';
   },
 
-  tenFrame(filled, total=10) {
-    const w=300,h=160;
-    let s=`<svg viewBox="0 0 ${w} ${h}" width="100%" height="180" style="background:rgba(0,0,0,0.02);border-radius:12px;">`;
-    s+=`<rect x="30" y="20" width="240" height="120" rx="10" fill="none" stroke="#64748b" stroke-width="3"/>`;
-    for(let r=0;r<2;r++){
-      for(let c=0;c<5;c++){
-        const x=45+c*46,y=35+r*55,idx=r*5+c;
-        s+=`<rect x="${x}" y="${y}" width="36" height="36" rx="6" fill="${idx<filled?'#7f5af0':'rgba(255,255,255,0.05)'}" stroke="#64748b" stroke-width="1.5">`;
-        if(idx<filled) s+=`<animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="${idx*0.06}s"/>`;
-        s+=`</rect>`;
-        if(idx<filled) s+=`<text x="${x+18}" y="${y+25}" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">${idx+1}</text>`;
+  barModel(a,b){
+    const w=500,h=170,sum=a+b;
+    const barW=400,barH=45,startX=50,topY=30,botY=95;
+    let s=svgOpen(w,h);
+    // whole bar on top
+    s+=rect(startX,topY,barW,barH,`rgba(6,182,212,0.15)`,10,`stroke="${C.c}" stroke-width="2"`);
+    s+=txt(startX+barW/2,topY+barH/2+6,sum,C.c,22);
+    // arrow down
+    s+=`<line x1="250" y1="${topY+barH+5}" x2="250" y2="${botY-5}" stroke="${C.m}" stroke-width="2" stroke-dasharray="4 3"/>`;
+    // part bars
+    const wA=barW*(a/sum),wB=barW*(b/sum);
+    s+=rect(startX,botY,wA,barH,`rgba(127,90,240,0.2)`,10,`stroke="${C.p}" stroke-width="2"`);
+    s+=txt(startX+wA/2,botY+barH/2+6,a,C.p,20);
+    s+=rect(startX+wA+4,botY,wB-4,barH,`rgba(44,182,125,0.2)`,10,`stroke="${C.g}" stroke-width="2"`);
+    s+=txt(startX+wA+wB/2,botY+barH/2+6,b,C.g,20);
+    s+=txt(250,botY+barH+25,`${a} + ${b} = ${sum}`,C.w,16);
+    return s+'</svg>';
+  },
+
+  numberBond(a,b){
+    const w=300,h=220,sum=a+b;
+    let s=svgOpen(w,h);
+    // whole at top
+    s+=`<line x1="150" y1="55" x2="80" y2="135" stroke="${C.m}" stroke-width="2"/>`;
+    s+=`<line x1="150" y1="55" x2="220" y2="135" stroke="${C.m}" stroke-width="2"/>`;
+    s+=circ(150,40,30,`rgba(6,182,212,0.2)`,`stroke="${C.c}" stroke-width="2"`);
+    s+=txt(150,47,sum,C.c,24);
+    // parts
+    s+=circ(80,150,28,`rgba(127,90,240,0.2)`,`stroke="${C.p}" stroke-width="2"`);
+    s+=txt(80,157,a,C.p,22);
+    s+=circ(220,150,28,`rgba(44,182,125,0.2)`,`stroke="${C.g}" stroke-width="2"`);
+    s+=txt(220,157,b,C.g,22);
+    s+=txt(150,210,`${a} + ${b} = ${sum}`,C.w,14);
+    return s+'</svg>';
+  },
+
+  patternBridge(nums,rule){
+    const w=520,h=170;
+    let s=svgOpen(w,h);
+    const xP=[50,165,280,395,490];
+    // connecting lines with animated dash
+    for(let i=0;i<nums.length-1;i++){
+      s+=`<line x1="${xP[i]+22}" y1="65" x2="${xP[i+1]-22}" y2="65" stroke="${C.c}" stroke-width="3" stroke-dasharray="8 4" stroke-linecap="round">${anim('stroke-dashoffset','20;0','1.5s','repeatCount="indefinite"')}</line>`;
+      // difference arrow
+      if(nums[i]!=='?'&&nums[i+1]!=='?'){
+        const diff=nums[i+1]-nums[i];
+        s+=txt((xP[i]+xP[i+1])/2,45,`+${diff}`,'#06b6d4',12);
       }
     }
-    return s+`</svg>`;
+    nums.forEach((n,i)=>{
+      const isQ=n==='?';
+      const fill=isQ?'rgba(245,158,11,0.2)':'rgba(127,90,240,0.15)';
+      const stroke=isQ?C.o:C.p;
+      const del=i*0.1;
+      // hexagon-ish rounded rect
+      s+=`<rect x="${xP[i]-24}" y="41" width="48" height="48" rx="14" fill="${fill}" stroke="${stroke}" stroke-width="2.5" ${fadeIn(del)}/>`;
+      s+=`<text x="${xP[i]}" y="72" text-anchor="middle" fill="${isQ?C.o:'#fff'}" font-weight="800" font-size="18" font-family="Outfit" ${fadeIn(del+0.05)}>${n}</text>`;
+      if(isQ) s+=`<rect x="${xP[i]-24}" y="41" width="48" height="48" rx="14" fill="none" stroke="${C.o}" stroke-width="2">${anim('stroke-opacity','1;0.3;1','1.5s','repeatCount="indefinite"')}</rect>`;
+    });
+    if(rule) s+=txt(260,140,rule,C.m,15);
+    return s+'</svg>';
   },
 
-  splitMerge(a, b) {
-    const sum=a+b, make10a=10-a, leftover=b-make10a;
-    const w=500,h=280;
-    let s=`<svg viewBox="0 0 ${w} ${h}" width="100%" height="300" style="background:rgba(0,0,0,0.02);border-radius:12px;">`;
-    // Top: original numbers
-    s+=`<rect x="100" y="15" width="80" height="50" rx="12" fill="#7f5af0"/><text x="140" y="48" text-anchor="middle" fill="#fff" font-size="24" font-weight="800">${a}</text>`;
-    s+=`<text x="250" y="48" text-anchor="middle" fill="#ff8906" font-size="28" font-weight="900">+</text>`;
-    s+=`<rect x="320" y="15" width="80" height="50" rx="12" fill="#2cb67d"/><text x="360" y="48" text-anchor="middle" fill="#fff" font-size="24" font-weight="800">${b}</text>`;
-    // Split arrow from b
-    s+=`<line x1="340" y1="70" x2="300" y2="115" stroke="#e53170" stroke-width="2" stroke-dasharray="4 3"><animate attributeName="opacity" from="0" to="1" dur="0.5s" fill="freeze" begin="0.3s"/></line>`;
-    s+=`<line x1="380" y1="70" x2="420" y2="115" stroke="#e53170" stroke-width="2" stroke-dasharray="4 3"><animate attributeName="opacity" from="0" to="1" dur="0.5s" fill="freeze" begin="0.3s"/></line>`;
-    // Split pieces
-    s+=`<rect x="265" y="120" width="65" height="40" rx="10" fill="#e53170"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="0.5s"/></rect>`;
-    s+=`<text x="297" y="147" text-anchor="middle" fill="#fff" font-size="18" font-weight="700"><animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="0.6s"/>${make10a}</text>`;
-    s+=`<rect x="390" y="120" width="65" height="40" rx="10" fill="#ff8906"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="0.5s"/></rect>`;
-    s+=`<text x="422" y="147" text-anchor="middle" fill="#fff" font-size="18" font-weight="700"><animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="0.6s"/>${leftover}</text>`;
-    // Merge arrow: a + make10a -> 10
-    s+=`<line x1="140" y1="70" x2="140" y2="195" stroke="#7f5af0" stroke-width="2" stroke-dasharray="4 3"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="0.8s"/></line>`;
-    s+=`<line x1="297" y1="165" x2="200" y2="195" stroke="#e53170" stroke-width="2" stroke-dasharray="4 3"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="0.8s"/></line>`;
-    // Result: 10
-    s+=`<rect x="110" y="200" width="120" height="50" rx="12" fill="#7f5af0"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="1s"/></rect>`;
-    s+=`<text x="170" y="232" text-anchor="middle" fill="#fff" font-size="22" font-weight="800"><animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="1.1s"/>10</text>`;
-    // Plus leftover
-    s+=`<text x="280" y="232" text-anchor="middle" fill="#ff8906" font-size="24" font-weight="900"><animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="1.2s"/>+</text>`;
-    s+=`<rect x="330" y="200" width="80" height="50" rx="12" fill="#ff8906"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="1.2s"/></rect>`;
-    s+=`<text x="370" y="232" text-anchor="middle" fill="#fff" font-size="22" font-weight="800"><animate attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="1.3s"/>${leftover}</text>`;
-    // Final = sum
-    s+=`<text x="250" y="275" text-anchor="middle" fill="#fffffe" font-size="22" font-weight="800" font-family="Outfit"><animate attributeName="opacity" from="0" to="1" dur="0.4s" fill="freeze" begin="1.5s"/>= ${sum}</text>`;
-    return s+`</svg>`;
-  },
-
-  bubbles(a, b, showSum=true) {
-    const w=500,h=220,sum=a+b;
-    let s=`<svg viewBox="0 0 ${w} ${h}" width="100%" height="240" style="background:rgba(0,0,0,0.02);border-radius:12px;">`;
-    s+=`<defs><radialGradient id="bg1" cx="30%" cy="30%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7f5af0"/></radialGradient>`;
-    s+=`<radialGradient id="bg2" cx="30%" cy="30%"><stop offset="0%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#2cb67d"/></radialGradient>`;
-    s+=`<radialGradient id="bg3" cx="30%" cy="30%"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#ff8906"/></radialGradient></defs>`;
-    // Bubble A
-    const rA=30+a*2;
-    s+=`<circle cx="120" cy="110" r="${rA}" fill="url(#bg1)" opacity="0.9"><animate attributeName="cx" values="120;125;120" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="110;105;110" dur="2.5s" repeatCount="indefinite"/></circle>`;
-    s+=`<text x="120" y="116" text-anchor="middle" fill="#fff" font-size="28" font-weight="800">${a}</text>`;
-    // Plus
-    s+=`<text x="220" y="118" text-anchor="middle" fill="#ff8906" font-size="36" font-weight="900">+</text>`;
-    // Bubble B
-    const rB=30+b*2;
-    s+=`<circle cx="320" cy="110" r="${rB}" fill="url(#bg2)" opacity="0.9"><animate attributeName="cx" values="320;315;320" dur="2.8s" repeatCount="indefinite"/><animate attributeName="cy" values="110;115;110" dur="3.2s" repeatCount="indefinite"/></circle>`;
-    s+=`<text x="320" y="116" text-anchor="middle" fill="#fff" font-size="28" font-weight="800">${b}</text>`;
-    if(showSum){
-      s+=`<text x="410" y="118" text-anchor="middle" fill="#ff8906" font-size="36" font-weight="900">=</text>`;
-      const rS=35+sum*1.5;
-      s+=`<circle cx="470" cy="110" r="${Math.min(rS,55)}" fill="url(#bg3)" opacity="0.9"><animate attributeName="r" values="${Math.min(rS,55)-5};${Math.min(rS,55)};${Math.min(rS,55)-5}" dur="2s" repeatCount="indefinite"/></circle>`;
-      s+=`<text x="470" y="118" text-anchor="middle" fill="#fff" font-size="30" font-weight="900">${sum}</text>`;
-    } else {
-      s+=`<text x="410" y="118" text-anchor="middle" fill="#ff8906" font-size="36" font-weight="900">=</text>`;
-      s+=`<circle cx="470" cy="110" r="35" fill="rgba(255,255,255,0.08)" stroke="#64748b" stroke-width="3"><animate attributeName="r" values="33;37;33" dur="2s" repeatCount="indefinite"/></circle>`;
-      s+=`<text x="470" y="120" text-anchor="middle" fill="#64748b" font-size="36" font-weight="900">?</text>`;
+  tenFrame(filled,total=10){
+    const w=320,h=180;
+    let s=svgOpen(w,h);
+    s+=rect(25,15,270,140,'none',12,`stroke="#4a4a6a" stroke-width="3"`);
+    for(let r=0;r<2;r++){
+      for(let c=0;c<5;c++){
+        const x=40+c*50,y=28+r*65,idx=r*5+c;
+        const isFilled=idx<filled;
+        const del=idx*0.07;
+        s+=`<rect x="${x}" y="${y}" width="40" height="40" rx="8" fill="${isFilled?C.p:'rgba(255,255,255,0.04)'}" stroke="${isFilled?'rgba(127,90,240,0.5)':'#3a3a5a'}" stroke-width="2" ${isFilled?fadeIn(del):''}/>`;
+        if(isFilled) s+=`<text x="${x+20}" y="${y+27}" text-anchor="middle" fill="#fff" font-size="17" font-weight="800" font-family="Outfit" ${fadeIn(del+0.03)}>${idx+1}</text>`;
+      }
     }
-    return s+`</svg>`;
+    return s+'</svg>';
+  },
+
+  tenFrameAddition(a,b){
+    const w=420,h=220,sum=a+b;
+    let s=svgOpen(w,h);
+    s+=txt(210,22,`${a} + ${b} = ${sum}`,C.w,18);
+    // frame
+    s+=rect(40,35,270,140,'none',12,`stroke="#4a4a6a" stroke-width="3"`);
+    for(let r=0;r<2;r++){
+      for(let c=0;c<5;c++){
+        const x=52+c*50,y=48+r*62,idx=r*5+c;
+        const isA=idx<a,isB=idx>=a&&idx<Math.min(sum,10);
+        const col=isA?C.p:isB?C.g:'rgba(255,255,255,0.04)';
+        const border=isA?C.p:isB?C.g:'#3a3a5a';
+        const del=idx*0.06;
+        s+=`<rect x="${x}" y="${y}" width="42" height="42" rx="8" fill="${col}" fill-opacity="${isA||isB?'0.85':'1'}" stroke="${border}" stroke-width="2" ${(isA||isB)?fadeIn(del):''}/>`;
+        if(isA||isB) s+=`<text x="${x+21}" y="${y+28}" text-anchor="middle" fill="#fff" font-size="15" font-weight="800" ${fadeIn(del+0.03)}>${idx+1}</text>`;
+      }
+    }
+    // overflow dots
+    if(sum>10){
+      const overflow=sum-10;
+      for(let i=0;i<overflow;i++){
+        const x=340,y=60+i*35,del=(10+i)*0.06;
+        s+=circ(x,y,16,C.o,`${fadeIn(del)}/`);
+        s+=`<text x="${x}" y="${y+5}" text-anchor="middle" fill="#fff" font-size="13" font-weight="800" ${fadeIn(del+0.03)}>${10+i+1}</text>`;
+      }
+      s+=txt(370,sum>11?95:75,'↑',C.o,14);
+      s+=txt(370,sum>11?115:95,`+${overflow}`,C.o,13);
+    }
+    return s+'</svg>';
+  },
+
+  splitMerge(a,b){
+    const sum=a+b,need=10-a,left=b-need;
+    const w=500,h=290;
+    let s=svgOpen(w,h);
+    // Top row: a + b
+    s+=rect(100,12,80,50,C.p,14);
+    s+=txt(140,45,a,'#fff',24);
+    s+=txt(250,45,'+',C.o,30);
+    s+=rect(320,12,80,50,C.g,14);
+    s+=txt(360,45,b,'#fff',24);
+    // Split arrows
+    s+=`<line x1="340" y1="68" x2="300" y2="112" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.3)}/>`;
+    s+=`<line x1="380" y1="68" x2="420" y2="112" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.3)}/>`;
+    s+=txt(360,82,'split!',C.r,11,fadeIn(0.35));
+    // Split pieces
+    s+=`<rect x="268" y="118" width="62" height="40" rx="10" fill="${C.r}" ${fadeIn(0.5)}/>`;
+    s+=`<text x="299" y="145" text-anchor="middle" fill="#fff" font-size="18" font-weight="700" ${fadeIn(0.55)}>${need}</text>`;
+    s+=`<rect x="390" y="118" width="62" height="40" rx="10" fill="${C.o}" ${fadeIn(0.5)}/>`;
+    s+=`<text x="421" y="145" text-anchor="middle" fill="#fff" font-size="18" font-weight="700" ${fadeIn(0.55)}>${left}</text>`;
+    // Merge arrows
+    s+=`<line x1="140" y1="68" x2="170" y2="195" stroke="${C.p}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.7)}/>`;
+    s+=`<line x1="299" y1="163" x2="210" y2="195" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.7)}/>`;
+    s+=txt(120,135,'make 10',C.p,11,fadeIn(0.75));
+    // Result: 10
+    s+=`<rect x="120" y="200" width="120" height="50" rx="14" fill="${C.p}" ${fadeIn(0.9)}/>`;
+    s+=`<text x="180" y="232" text-anchor="middle" fill="#fff" font-size="24" font-weight="800" ${fadeIn(0.95)}>10</text>`;
+    // Plus leftover
+    s+=`<text x="285" y="232" text-anchor="middle" fill="${C.o}" font-size="26" font-weight="900" ${fadeIn(1.05)}>+</text>`;
+    s+=`<rect x="330" y="200" width="80" height="50" rx="14" fill="${C.o}" ${fadeIn(1.1)}/>`;
+    s+=`<text x="370" y="232" text-anchor="middle" fill="#fff" font-size="24" font-weight="800" ${fadeIn(1.15)}>${left}</text>`;
+    // Final answer
+    s+=`<text x="250" y="280" text-anchor="middle" fill="${C.w}" font-size="22" font-weight="800" font-family="Outfit" ${fadeIn(1.3)}>= ${sum}</text>`;
+    return s+'</svg>';
+  },
+
+  bubbles(a,b,showSum=true){
+    const w=520,h=230,sum=a+b;
+    let s=svgOpen(w,h);
+    s+=`<defs>
+      <radialGradient id="bg1" cx="35%" cy="35%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="${C.p}"/></radialGradient>
+      <radialGradient id="bg2" cx="35%" cy="35%"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="${C.g}"/></radialGradient>
+      <radialGradient id="bg3" cx="35%" cy="35%"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="${C.o}"/></radialGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>`;
+    const rA=32+a*2.5,rB=32+b*2.5;
+    // Bubble A with inner particles
+    s+=`<circle cx="120" cy="115" r="${rA}" fill="url(#bg1)" opacity="0.9" filter="url(#glow)">${anim('cy','115;108;115','3s','repeatCount="indefinite"')}</circle>`;
+    for(let i=0;i<Math.min(a,6);i++){
+      const px=110+Math.cos(i*1.1)*rA*0.5,py=108+Math.sin(i*1.1)*rA*0.5;
+      s+=`<circle cx="${px}" cy="${py}" r="3" fill="rgba(255,255,255,0.4)">${anim('cy','${py};${py-6};${py}',`${1.5+i*0.3}s`,'repeatCount="indefinite"')}</circle>`;
+    }
+    s+=txt(120,122,a,'#fff',30);
+    s+=txt(225,122,'+',C.o,38);
+    // Bubble B
+    s+=`<circle cx="330" cy="115" r="${rB}" fill="url(#bg2)" opacity="0.9" filter="url(#glow)">${anim('cy','115;120;115','2.8s','repeatCount="indefinite"')}</circle>`;
+    for(let i=0;i<Math.min(b,6);i++){
+      const px=320+Math.cos(i*1.2)*rB*0.5,py=110+Math.sin(i*1.2)*rB*0.5;
+      s+=`<circle cx="${px}" cy="${py}" r="3" fill="rgba(255,255,255,0.4)">${anim('cy','${py};${py+5};${py}',`${1.8+i*0.3}s`,'repeatCount="indefinite"')}</circle>`;
+    }
+    s+=txt(330,122,b,'#fff',30);
+    if(showSum){
+      s+=txt(420,122,'=',C.o,38);
+      const rS=Math.min(36+sum*1.8,58);
+      s+=`<circle cx="480" cy="115" r="${rS}" fill="url(#bg3)" opacity="0.9" filter="url(#glow)">${anim('r',`${rS-4};${rS};${rS-4}`,'2s','repeatCount="indefinite"')}</circle>`;
+      s+=txt(480,122,sum,'#fff',32);
+    } else {
+      s+=txt(420,122,'=',C.o,38);
+      s+=`<circle cx="480" cy="115" r="36" fill="rgba(255,255,255,0.06)" stroke="#4a4a6a" stroke-width="3">${anim('r','34;38;34','2s','repeatCount="indefinite"')}</circle>`;
+      s+=txt(480,122,'?','#64748b',38);
+    }
+    return s+'</svg>';
   }
 };

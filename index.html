@@ -6,10 +6,14 @@
   <title>Kingdom of Addition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
+  <!-- Animated Background Elements -->
+  <div id="bg-particles"></div>
+  <canvas id="confetti-canvas"></canvas>
+
   <div id="app">
     <!-- Navbar / Header -->
     <header class="app-header glass">
@@ -20,6 +24,10 @@
       <div class="progress-bar-container">
         <div class="progress-bar" id="mastery-progress" style="width: 0%"></div>
       </div>
+      <div class="streak-display" id="header-streak">
+        <span class="streak-fire">🔥</span>
+        <span class="streak-num">0</span>
+      </div>
       <button class="btn btn-icon" id="btn-home" title="Home">🏠</button>
     </header>
 
@@ -28,7 +36,7 @@
       <section id="view-dashboard" class="view active">
         <div class="hero glass-panel">
           <h1>Module 2: <span class="gradient-text">Kingdom of Addition</span></h1>
-          <p>Master the art of addition through powerful visuals and Intellia's split-and-merge methods!</p>
+          <p>Master the art of addition through powerful visuals, animated dot arrays, and Intellia's split-and-merge methods!</p>
         </div>
         
         <div class="topics-grid" id="topics-grid">
@@ -42,6 +50,10 @@
           <button class="btn btn-back" id="btn-back">← Back</button>
           <h2 id="lesson-title">Topic Name</h2>
           <div class="lesson-score">🎯 <span id="lesson-score-val">0</span>/<span id="lesson-score-max">5</span></div>
+        </div>
+
+        <div class="step-indicators" id="step-indicators">
+          <!-- Dots injected by JS -->
         </div>
 
         <div class="lesson-container">
@@ -60,15 +72,16 @@
             <div class="task-question" id="task-question"></div>
             <div class="visual-area" id="task-visual"></div>
             
-            <div id="task-hint-container" style="display:none; text-align: left; margin: 1rem auto; max-width: 500px; width: 100%;">
-              <button class="btn btn-secondary" id="btn-show-hint" style="display: block; margin: 0 auto; color: var(--text-main); font-weight: 600;"><span style="font-size:1.2rem;">💡</span> Need a Hint?</button>
-              <div id="hint-text" style="display:none; margin-top: 1rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; border-radius: 8px; font-size:1.1rem; line-height: 1.5; color: var(--text-main);"></div>
+            <div class="hint-container" id="task-hint-container" style="display:none;">
+              <button class="hint-btn" id="btn-show-hint">
+                <span class="hint-icon">💡</span> Need a Hint?
+              </button>
+              <div class="hint-text-box" id="hint-text" style="display:none;"></div>
             </div>
 
             <div class="answer-area" id="task-answers"></div>
           </div>
         </div>
-
       </section>
       
       <!-- COMPLETION OVERLAY -->
@@ -76,8 +89,9 @@
         <div class="modal glass animate-pop">
            <div class="modal-icon">🎉</div>
            <h2>Topic Mastered!</h2>
-           <p>You've conquered <span id="completed-topic-name"></span></p>
-           <button class="btn btn-primary" id="btn-next-topic">Continue</button>
+           <p>You've conquered <span id="completed-topic-name" class="highlight-text"></span></p>
+           <div class="score-summary">100%</div>
+           <button class="btn btn-primary btn-large btn-glow" id="btn-next-topic">Continue Journey</button>
         </div>
       </div>
     </main>
