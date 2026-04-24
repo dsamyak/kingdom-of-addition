@@ -25,8 +25,8 @@ export const Generators = {
         visual: SVG.numberLine(0,10,[3,7],true)
       }
     ];
-    // 8 questions: small range 0-10
-    for(let i=0;i<8;i++){
+    // 10 questions: small range 0-10
+    for(let i=0;i<10;i++){
       const t=Math.floor(Math.random()*9)+1;
       items.push({ q:'Which number is hiding under the frog?', visual:SVG.numberLine(0,10,[],false,t), ans:t,
         choices:makeChoices(t,2), hint:'Look at the numbers just before and after the frog!'});
@@ -37,8 +37,8 @@ export const Generators = {
     });
     // 10 questions: bigger range
     for(let i=0;i<10;i++){
-      const min=10, max=20, t=Math.floor(Math.random()*9)+11;
-      items.push({ q:'Which number is hiding under the frog?', visual:SVG.numberLine(min,max,[],false,t), ans:t,
+      const mn=10, mx=20, t=Math.floor(Math.random()*9)+11;
+      items.push({ q:'Which number is hiding under the frog?', visual:SVG.numberLine(mn,mx,[],false,t), ans:t,
         choices:makeChoices(t,2), hint:'Check the numbers on either side of the frog!'});
     }
     return items;
@@ -56,7 +56,7 @@ export const Generators = {
         visual: SVG.additionOnLine(0,10,4,5)
       }
     ];
-    for(let i=0;i<8;i++){
+    for(let i=0;i<10;i++){
       const a=Math.floor(Math.random()*5)+1, b=Math.floor(Math.random()*4)+1, sum=a+b;
       items.push({ q:`Solve: ${a} + ${b} = ?`, visual:SVG.additionOnLine(0,10,a,b,false), ans:sum,
         choices:makeChoices(sum,2), hint:`Start at ${a} and hop ${b} times to the right!`});
@@ -85,8 +85,8 @@ export const Generators = {
         visual: SVG.patternBridge([5,10,15,20,25],'+5')
       }
     ];
-    // Pattern +2
-    for(let i=0;i<4;i++){
+    // Pattern +2 (6 questions)
+    for(let i=0;i<6;i++){
       const step=2;
       const start=Math.floor(Math.random()*6)*2+2;
       const seq=[start,start+step,start+2*step,start+3*step,start+4*step];
@@ -99,7 +99,8 @@ export const Generators = {
       text:`Now let's try +3 patterns: 3, 6, 9, 12, 15. Each number is 3 more than the one before it!`,
       visual: SVG.patternBridge([3,6,9,12,15],'+3')
     });
-    for(let i=0;i<4;i++){
+    // Pattern +3 (5 questions)
+    for(let i=0;i<5;i++){
       const step=3;
       const start=Math.floor(Math.random()*5)*3+3;
       const seq=[start,start+step,start+2*step,start+3*step,start+4*step];
@@ -112,6 +113,7 @@ export const Generators = {
       text:`Bigger jumps follow the same idea! 10, 20, 30, 40, 50 — that's +10. Easy when you see the rule!`,
       visual: SVG.patternBridge([10,20,30,40,50],'+10')
     });
+    // Pattern +5/+10 (4 questions)
     for(let i=0;i<4;i++){
       const step=[5,10][Math.floor(Math.random()*2)];
       const start=Math.floor(Math.random()*5)*step+step;
@@ -121,8 +123,8 @@ export const Generators = {
       items.push({ q:`Find the missing number (Rule: +${step}):`, visual:SVG.patternBridge(d,`+${step}`), ans,
         choices:makeChoices(ans,step), hint:`The rule is +${step}. Subtract neighbours to confirm!`});
     }
-    // 6 more mixed
-    for(let i=0;i<6;i++){
+    // 5 more mixed (total = 6+5+4+5 = 20)
+    for(let i=0;i<5;i++){
       const step=[2,3,4,5,10][Math.floor(Math.random()*5)];
       const start=Math.floor(Math.random()*8)+1;
       const seq=[start,start+step,start+2*step,start+3*step,start+4*step];
@@ -156,7 +158,7 @@ export const Generators = {
     ];
     const visTypes = ['groups','dots','bar','bond'];
     const emojis = [['⭐','🌙'],['🍎','🍊'],['🐱','🐶'],['🌸','🌻']];
-    for(let i=0;i<16;i++){
+    for(let i=0;i<20;i++){
       const a=Math.floor(Math.random()*7)+1, b=Math.floor(Math.random()*7)+1, sum=a+b;
       const type = visTypes[i%4];
       const ep = emojis[Math.floor(Math.random()*emojis.length)];
@@ -192,17 +194,23 @@ export const Generators = {
       }
     ];
     // Pairs that need make-10
-    const pairs = [[8,3],[7,4],[6,5],[9,3],[8,4],[7,5],[6,6],[9,5],[8,6],[7,6],[6,7],[9,4],[8,5],[7,8],[6,8],[9,6]];
-    const used = shuffle(pairs).slice(0,16);
-    for(let i=0;i<16;i++){
+    const pairs = [[8,3],[7,4],[6,5],[9,3],[8,4],[7,5],[6,6],[9,5],[8,6],[7,6],[6,7],[9,4],[8,5],[7,8],[6,8],[9,6],[8,7],[7,9],[9,7],[8,8]];
+    const used = shuffle(pairs).slice(0,20);
+    for(let i=0;i<20;i++){
       const [a,b] = used[i%used.length];
       const sum=a+b;
       const need=10-a;
-      const isFrame = i%2===0;
+      const left=b-need;
+      const isFrame = i%3===0;
+      const isSplit = i%3===1;
+      let visual;
+      if(isFrame) visual = SVG.tenFrameAddition(a,b,false);
+      else if(isSplit) visual = SVG.splitMerge(a,b,false);
+      else visual = SVG.splitMerge(a,b,false);
       items.push({ q:`Use Intellia's method: ${a} + ${b} = ?`,
-        visual: isFrame ? SVG.tenFrameAddition(a,b,false) : SVG.splitMerge(a,b,false), ans:sum,
+        visual, ans:sum,
         choices:makeChoices(sum,2),
-        hint:`Split ${b} into ${need} and ${b-need}. Make 10 with ${a}+${need}, then add ${b-need}!`});
+        hint:`Split ${b} into ${need} and ${left}. Make 10 with ${a}+${need}, then add ${left}!`});
     }
     return items;
   },
@@ -223,8 +231,8 @@ export const Generators = {
         visual: SVG.bubbles(7,6,true)
       }
     ];
-    // small numbers
-    for(let i=0;i<8;i++){
+    // small numbers (10 questions)
+    for(let i=0;i<10;i++){
       const a=Math.floor(Math.random()*8)+1, b=Math.floor(Math.random()*8)+1, sum=a+b;
       items.push({ q:'What number forms when these bubbles merge?', visual:SVG.bubbles(a,b,false), ans:sum,
         choices:makeChoices(sum,2), hint:'Add the numbers inside the two coloured bubbles!'});
@@ -233,8 +241,8 @@ export const Generators = {
       text:`Even larger numbers work the same way! 12 + 9 = 21. The result bubble grows with the sum!`,
       visual: SVG.bubbles(12,9,true)
     });
-    // larger numbers
-    for(let i=0;i<9;i++){
+    // larger numbers (10 questions)
+    for(let i=0;i<10;i++){
       const a=Math.floor(Math.random()*12)+5, b=Math.floor(Math.random()*10)+3, sum=a+b;
       items.push({ q:'What number forms when these bubbles merge?', visual:SVG.bubbles(a,b,false), ans:sum,
         choices:makeChoices(sum,3), hint:'Simply add the two numbers inside the bubbles!'});
@@ -262,16 +270,16 @@ export const Generators = {
         visual: SVG.verticalAddition(37, 45)
       }
     ];
-    // No carry questions
-    for(let i=0;i<6;i++){
+    // No carry questions (8)
+    for(let i=0;i<8;i++){
       const aT=Math.floor(Math.random()*4)+1, aO=Math.floor(Math.random()*4)+1;
       const bT=Math.floor(Math.random()*3)+1, bO=Math.floor(Math.random()*Math.min(4,9-aO))+1;
       const a=aT*10+aO, b=bT*10+bO, sum=a+b;
       items.push({ q:`Add vertically: ${a} + ${b} = ?`, visual:SVG.verticalAddition(a,b,false), ans:sum,
         choices:makeChoices(sum,3), hint:'Add the Ones column first, then the Tens column!'});
     }
-    // Carry questions
-    for(let i=0;i<10;i++){
+    // Carry questions (12)
+    for(let i=0;i<12;i++){
       const aT=Math.floor(Math.random()*5)+2, aO=Math.floor(Math.random()*4)+6;
       const bT=Math.floor(Math.random()*3)+1, bO=Math.floor(Math.random()*4)+5;
       const a=aT*10+aO, b=bT*10+bO, sum=a+b;
@@ -306,7 +314,7 @@ export const Generators = {
       (a,b,n)=>`A shop sold ${a} ${n} in the morning and ${b} ${n} in the evening. How many were sold in total?`,
       (a,b,n)=>`There were ${a} ${n} on the left and ${b} ${n} on the right. How many ${n} are there altogether?`
     ];
-    for(let i=0;i<18;i++){
+    for(let i=0;i<20;i++){
       const sc = scenarios[Math.floor(Math.random()*scenarios.length)];
       const a = Math.floor(Math.random()*8)+2, b = Math.floor(Math.random()*8)+2, sum=a+b;
       const tpl = templates[Math.floor(Math.random()*templates.length)];
