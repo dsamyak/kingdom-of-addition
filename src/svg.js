@@ -164,29 +164,39 @@ export const SVG = {
   },
 
   patternBridge(nums,rule){
-    const w=520,h=170;
+    const w=540,h=180;
     let s=svgOpen(w,h);
-    const xP=[50,165,280,395,490];
-    // connecting lines with animated dash
-    for(let i=0;i<nums.length-1;i++){
-      s+=`<line x1="${xP[i]+22}" y1="65" x2="${xP[i+1]-22}" y2="65" stroke="${C.c}" stroke-width="3" stroke-dasharray="8 4" stroke-linecap="round">${anim('stroke-dashoffset','20;0','1.5s','repeatCount="indefinite"')}</line>`;
-      // difference arrow
+    const n=nums.length;
+    const gap=w/(n+1);
+    const xP=nums.map((_,i)=>gap*(i+1));
+    // Rule badge at top
+    if(rule){
+      const rw=rule.length*9+30;
+      s+=`<rect x="${w/2-rw/2}" y="4" width="${rw}" height="26" rx="13" fill="rgba(6,182,212,0.12)" stroke="${C.c}" stroke-width="1.5"/>`;
+      s+=txt(w/2,22,`Rule: ${rule}`,C.c,12);
+    }
+    // connecting arcs
+    for(let i=0;i<n-1;i++){
+      const mx=(xP[i]+xP[i+1])/2;
+      s+=`<path d="M ${xP[i]+24} 75 Q ${mx} 40 ${xP[i+1]-24} 75" fill="none" stroke="${C.c}" stroke-width="2.5" stroke-linecap="round">${anim('stroke-dashoffset','20;0','1.5s','repeatCount="indefinite"')}</path>`;
       if(nums[i]!=='?'&&nums[i+1]!=='?'){
         const diff=nums[i+1]-nums[i];
-        s+=txt((xP[i]+xP[i+1])/2,45,`+${diff}`,'#06b6d4',12);
+        s+=txt(mx,42,`+${diff}`,C.c,11);
       }
     }
-    nums.forEach((n,i)=>{
-      const isQ=n==='?';
-      const fill=isQ?'rgba(245,158,11,0.2)':'rgba(127,90,240,0.15)';
+    nums.forEach((val,i)=>{
+      const isQ=val==='?';
+      const fill=isQ?'rgba(245,158,11,0.15)':'rgba(127,90,240,0.12)';
       const stroke=isQ?C.o:C.p;
-      const del=i*0.1;
-      // hexagon-ish rounded rect
-      s+=`<rect x="${xP[i]-24}" y="41" width="48" height="48" rx="14" fill="${fill}" stroke="${stroke}" stroke-width="2.5" ${fadeIn(del)}/>`;
-      s+=`<text x="${xP[i]}" y="72" text-anchor="middle" fill="${isQ?C.o:'#fff'}" font-weight="800" font-size="18" font-family="Outfit" ${fadeIn(del+0.05)}>${n}</text>`;
-      if(isQ) s+=`<rect x="${xP[i]-24}" y="41" width="48" height="48" rx="14" fill="none" stroke="${C.o}" stroke-width="2">${anim('stroke-opacity','1;0.3;1','1.5s','repeatCount="indefinite"')}</rect>`;
+      const del=i*0.12;
+      s+=`<rect x="${xP[i]-26}" y="52" width="52" height="52" rx="14" fill="${fill}" stroke="${stroke}" stroke-width="2.5" ${fadeIn(del)}/>`;
+      s+=`<text x="${xP[i]}" y="85" text-anchor="middle" fill="${isQ?C.o:C.w}" font-weight="800" font-size="20" font-family="Outfit" ${fadeIn(del+0.05)}>${val}</text>`;
+      if(isQ){
+        s+=`<rect x="${xP[i]-26}" y="52" width="52" height="52" rx="14" fill="none" stroke="${C.o}" stroke-width="2">${anim('stroke-opacity','1;0.3;1','1.5s','repeatCount="indefinite"')}</rect>`;
+      }
+      // Position number below
+      s+=`<text x="${xP[i]}" y="125" text-anchor="middle" fill="${C.m}" font-size="10" font-family="Outfit" opacity="0.6">${i+1}${['st','nd','rd'][i]||'th'}</text>`;
     });
-    if(rule) s+=txt(260,140,rule,C.m,15);
     return s+'</svg>';
   },
 
@@ -239,126 +249,150 @@ export const SVG = {
 
   splitMerge(a,b,showTotal=true){
     const sum=a+b,need=10-a,left=b-need;
-    const w=500,h=290;
+    const w=520,h=300;
     let s=svgOpen(w,h);
+    // Step label
+    s+=txt(260,20,'Split-and-Merge Method',C.m,13);
     // Top row: a + b
-    s+=rect(100,12,80,50,C.p,14);
-    s+=txt(140,45,a,'#fff',24);
-    s+=txt(250,45,'+',C.o,30);
-    s+=rect(320,12,80,50,C.g,14);
-    s+=txt(360,45,b,'#fff',24);
-    // Split arrows
-    s+=`<line x1="340" y1="68" x2="300" y2="112" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.3)}/>`;
-    s+=`<line x1="380" y1="68" x2="420" y2="112" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.3)}/>`;
-    s+=txt(360,82,'split!',C.r,11,fadeIn(0.35));
-    // Split pieces
-    s+=`<rect x="268" y="118" width="62" height="40" rx="10" fill="${C.r}" ${fadeIn(0.5)}/>`;
-    s+=`<text x="299" y="145" text-anchor="middle" fill="#fff" font-size="18" font-weight="700" ${fadeIn(0.55)}>${need}</text>`;
-    s+=`<rect x="390" y="118" width="62" height="40" rx="10" fill="${C.o}" ${fadeIn(0.5)}/>`;
-    s+=`<text x="421" y="145" text-anchor="middle" fill="#fff" font-size="18" font-weight="700" ${fadeIn(0.55)}>${left}</text>`;
-    // Merge arrows
-    s+=`<line x1="140" y1="68" x2="170" y2="195" stroke="${C.p}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.7)}/>`;
-    s+=`<line x1="299" y1="163" x2="210" y2="195" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.7)}/>`;
-    s+=txt(120,135,'make 10',C.p,11,fadeIn(0.75));
+    s+=rect(110,30,80,50,C.p,14);
+    s+=txt(150,63,a,'#fff',26);
+    s+=txt(260,63,'+',C.o,32);
+    s+=rect(330,30,80,50,C.g,14);
+    s+=txt(370,63,b,'#fff',26);
+    // "Step 1: Split" label
+    s+=`<text x="370" y="100" text-anchor="middle" fill="${C.r}" font-size="11" font-weight="700" font-family="Outfit" ${fadeIn(0.2)}>Step 1: Split ${b}</text>`;
+    // Split arrows from b
+    s+=`<line x1="350" y1="85" x2="310" y2="125" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.3)}/>`;
+    s+=`<line x1="390" y1="85" x2="430" y2="125" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.3)}/>`;
+    // Split pieces: need and left
+    s+=`<rect x="278" y="130" width="65" height="42" rx="10" fill="${C.r}" ${fadeIn(0.5)}/>`;
+    s+=`<text x="310" y="158" text-anchor="middle" fill="#fff" font-size="20" font-weight="700" ${fadeIn(0.55)}>${need}</text>`;
+    s+=`<rect x="400" y="130" width="65" height="42" rx="10" fill="${C.o}" ${fadeIn(0.5)}/>`;
+    s+=`<text x="432" y="158" text-anchor="middle" fill="#fff" font-size="20" font-weight="700" ${fadeIn(0.55)}>${left}</text>`;
+    // "Step 2: Make 10" label
+    s+=`<text x="150" y="110" text-anchor="middle" fill="${C.p}" font-size="11" font-weight="700" font-family="Outfit" ${fadeIn(0.6)}>Step 2: Make 10</text>`;
+    // Merge arrows: a + need → 10
+    s+=`<line x1="150" y1="85" x2="150" y2="195" stroke="${C.p}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.7)}/>`;
+    s+=`<line x1="310" y1="175" x2="220" y2="210" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.7)}/>`;
+    // merge label
+    s+=`<text x="100" y="155" text-anchor="middle" fill="${C.p}" font-size="10" font-weight="600" font-family="Outfit" ${fadeIn(0.75)}>${a}+${need}=10</text>`;
     // Result: 10
-    s+=`<rect x="120" y="200" width="120" height="50" rx="14" fill="${C.p}" ${fadeIn(0.9)}/>`;
-    s+=`<text x="180" y="232" text-anchor="middle" fill="#fff" font-size="24" font-weight="800" ${fadeIn(0.95)}>10</text>`;
+    s+=`<rect x="110" y="200" width="120" height="50" rx="14" fill="${C.p}" ${fadeIn(0.9)}/>`;
+    s+=`<text x="170" y="233" text-anchor="middle" fill="#fff" font-size="26" font-weight="800" ${fadeIn(0.95)}>10</text>`;
     // Plus leftover
-    s+=`<text x="285" y="232" text-anchor="middle" fill="${C.o}" font-size="26" font-weight="900" ${fadeIn(1.05)}>+</text>`;
+    s+=`<text x="280" y="233" text-anchor="middle" fill="${C.o}" font-size="28" font-weight="900" ${fadeIn(1.05)}>+</text>`;
     s+=`<rect x="330" y="200" width="80" height="50" rx="14" fill="${C.o}" ${fadeIn(1.1)}/>`;
-    s+=`<text x="370" y="232" text-anchor="middle" fill="#fff" font-size="24" font-weight="800" ${fadeIn(1.15)}>${left}</text>`;
+    s+=`<text x="370" y="233" text-anchor="middle" fill="#fff" font-size="26" font-weight="800" ${fadeIn(1.15)}>${left}</text>`;
+    // Arrow from leftover piece down
+    s+=`<line x1="432" y1="175" x2="370" y2="198" stroke="${C.o}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.9)}/>`;
+    // "Step 3" label
+    s+=`<text x="260" y="270" text-anchor="middle" fill="${C.m}" font-size="11" font-weight="700" font-family="Outfit" ${fadeIn(1.2)}>Step 3: Add the rest</text>`;
     // Final answer
-    s+=`<text x="250" y="280" text-anchor="middle" fill="${C.w}" font-size="22" font-weight="800" font-family="Outfit" ${fadeIn(1.3)}>= ${showTotal ? sum : '?'}</text>`;
+    s+=`<text x="260" y="295" text-anchor="middle" fill="${C.w}" font-size="22" font-weight="800" font-family="Outfit" ${fadeIn(1.3)}>10 + ${left} = ${showTotal ? sum : '?'}</text>`;
     return s+'</svg>';
   },
 
   bubbles(a,b,showSum=true){
-    const w=520,h=230,sum=a+b;
+    const w=560,h=250,sum=a+b;
     let s=svgOpen(w,h);
     s+=`<defs>
-      <radialGradient id="bg1" cx="35%" cy="35%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="${C.p}"/></radialGradient>
-      <radialGradient id="bg2" cx="35%" cy="35%"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="${C.g}"/></radialGradient>
-      <radialGradient id="bg3" cx="35%" cy="35%"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="${C.o}"/></radialGradient>
-      <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <radialGradient id="bg1" cx="30%" cy="30%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="${C.p}"/></radialGradient>
+      <radialGradient id="bg2" cx="30%" cy="30%"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="${C.g}"/></radialGradient>
+      <radialGradient id="bg3" cx="30%" cy="30%"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="${C.o}"/></radialGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>`;
-    const rA=32+a*2.5,rB=32+b*2.5;
-    // Bubble A with inner particles
-    s+=`<circle cx="120" cy="115" r="${rA}" fill="url(#bg1)" opacity="0.9" filter="url(#glow)">${anim('cy','115;108;115','3s','repeatCount="indefinite"')}</circle>`;
-    for(let i=0;i<Math.min(a,6);i++){
-      const px=110+Math.cos(i*1.1)*rA*0.5,py=108+Math.sin(i*1.1)*rA*0.5;
-      s+=`<circle cx="${px}" cy="${py}" r="3" fill="rgba(255,255,255,0.4)">${anim('cy','${py};${py-6};${py}',`${1.5+i*0.3}s`,'repeatCount="indefinite"')}</circle>`;
-    }
-    s+=txt(120,122,a,'#fff',30);
-    s+=txt(225,122,'+',C.o,38);
+    const rA=Math.min(34+a*2,52),rB=Math.min(34+b*2,52);
+    const cy=125;
+    // Bubble A
+    s+=`<circle cx="100" cy="${cy}" r="${rA}" fill="url(#bg1)" opacity="0.9" filter="url(#glow)">${anim('cy',`${cy};${cy-7};${cy}`,'3s','repeatCount="indefinite"')}</circle>`;
+    s+=`<circle cx="100" cy="${cy}" r="${rA+6}" fill="none" stroke="rgba(127,90,240,0.2)" stroke-width="1.5">${anim('r',`${rA+6};${rA+12};${rA+6}`,'3s','repeatCount="indefinite"')}</circle>`;
+    s+=txt(100,cy+8,a,'#fff',28);
+    // Plus
+    s+=txt(185,cy+8,'+',C.o,36);
     // Bubble B
-    s+=`<circle cx="330" cy="115" r="${rB}" fill="url(#bg2)" opacity="0.9" filter="url(#glow)">${anim('cy','115;120;115','2.8s','repeatCount="indefinite"')}</circle>`;
-    for(let i=0;i<Math.min(b,6);i++){
-      const px=320+Math.cos(i*1.2)*rB*0.5,py=110+Math.sin(i*1.2)*rB*0.5;
-      s+=`<circle cx="${px}" cy="${py}" r="3" fill="rgba(255,255,255,0.4)">${anim('cy','${py};${py+5};${py}',`${1.8+i*0.3}s`,'repeatCount="indefinite"')}</circle>`;
-    }
-    s+=txt(330,122,b,'#fff',30);
+    s+=`<circle cx="270" cy="${cy}" r="${rB}" fill="url(#bg2)" opacity="0.9" filter="url(#glow)">${anim('cy',`${cy};${cy+7};${cy}`,'2.8s','repeatCount="indefinite"')}</circle>`;
+    s+=`<circle cx="270" cy="${cy}" r="${rB+6}" fill="none" stroke="rgba(44,182,125,0.2)" stroke-width="1.5">${anim('r',`${rB+6};${rB+12};${rB+6}`,'2.8s','repeatCount="indefinite"')}</circle>`;
+    s+=txt(270,cy+8,b,'#fff',28);
+    // Equals
+    s+=txt(355,cy+8,'=',C.o,36);
+    // Merge arrow
+    s+=`<path d="M ${100+rA+8} ${cy} Q 185 ${cy-30} ${270-rB-8} ${cy}" fill="none" stroke="rgba(255,137,6,0.3)" stroke-width="2" stroke-dasharray="6 4">${anim('stroke-dashoffset','20;0','1.5s','repeatCount="indefinite"')}</path>`;
     if(showSum){
-      s+=txt(420,122,'=',C.o,38);
-      const rS=Math.min(36+sum*1.8,58);
-      s+=`<circle cx="480" cy="115" r="${rS}" fill="url(#bg3)" opacity="0.9" filter="url(#glow)">${anim('r',`${rS-4};${rS};${rS-4}`,'2s','repeatCount="indefinite"')}</circle>`;
-      s+=txt(480,122,sum,'#fff',32);
+      const rS=Math.min(38+sum*1.5,60);
+      s+=`<circle cx="450" cy="${cy}" r="${rS}" fill="url(#bg3)" opacity="0.9" filter="url(#glow)">${anim('r',`${rS-3};${rS+3};${rS-3}`,'2s','repeatCount="indefinite"')}</circle>`;
+      s+=`<circle cx="450" cy="${cy}" r="${rS+8}" fill="none" stroke="rgba(255,137,6,0.15)" stroke-width="1.5">${anim('r',`${rS+8};${rS+14};${rS+8}`,'2s','repeatCount="indefinite"')}</circle>`;
+      s+=txt(450,cy+8,sum,'#fff',30);
     } else {
-      s+=txt(420,122,'=',C.o,38);
-      s+=`<circle cx="480" cy="115" r="36" fill="rgba(255,255,255,0.06)" stroke="#cbd5e1" stroke-width="3">${anim('r','34;38;34','2s','repeatCount="indefinite"')}</circle>`;
-      s+=txt(480,122,'?','#64748b',38);
+      s+=`<circle cx="450" cy="${cy}" r="40" fill="rgba(200,200,200,0.08)" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="8 4">${anim('r','38;42;38','2s','repeatCount="indefinite"')}</circle>`;
+      s+=txt(450,cy+8,'?','#94a3b8',36);
     }
     return s+'</svg>';
   },
 
   verticalAddition(a, b, showTotal=true) {
-    const w = 300, h = 320;
+    const w = 360, h = 340;
     let s = svgOpen(w, h);
     const sum = a + b;
+    const aStr = String(a), bStr = String(b), sStr = String(sum);
+    const maxLen = Math.max(aStr.length, bStr.length, sStr.length);
     const aOnes = a % 10, aTens = Math.floor(a / 10);
     const bOnes = b % 10, bTens = Math.floor(b / 10);
     const sumOnes = sum % 10, sumTens = Math.floor(sum / 10);
     const carry = (aOnes + bOnes >= 10) ? 1 : 0;
-    
-    // Draw columns background
-    s += rect(90, 40, 60, 240, 'rgba(127,90,240,0.08)', 8); // Tens column
-    s += rect(150, 40, 60, 240, 'rgba(44,182,125,0.08)', 8); // Ones column
-    
+    const cx = 180; // center x
+    const tensX = cx - 40, onesX = cx + 40;
+
+    // Column backgrounds
+    s += rect(tensX-32, 38, 64, 260, 'rgba(127,90,240,0.06)', 10, `stroke="rgba(127,90,240,0.15)" stroke-width="1"`);
+    s += rect(onesX-32, 38, 64, 260, 'rgba(44,182,125,0.06)', 10, `stroke="rgba(44,182,125,0.15)" stroke-width="1"`);
+
     // Column Labels
-    s += txt(120, 65, 'Tens', C.p, 14);
-    s += txt(180, 65, 'Ones', C.g, 14);
-    
+    s += txt(tensX, 58, 'T', C.p, 13, 'font-style="italic"');
+    s += txt(onesX, 58, 'O', C.g, 13, 'font-style="italic"');
+
+    // Number A row (y=100)
+    if (aTens > 0) s += txt(tensX, 105, aTens, C.p, 34, fadeIn(0.1));
+    s += txt(onesX, 105, aOnes, C.g, 34, fadeIn(0.15));
+
     // Plus sign
-    s += txt(60, 160, '+', C.o, 32);
-    
-    // Number A
-    if (aTens > 0) s += txt(120, 115, aTens, C.p, 32, fadeIn(0.2));
-    s += txt(180, 115, aOnes, C.g, 32, fadeIn(0.3));
-    
-    // Number B
-    if (bTens > 0) s += txt(120, 165, bTens, C.p, 32, fadeIn(0.5));
-    s += txt(180, 165, bOnes, C.g, 32, fadeIn(0.6));
-    
-    // Line
-    s += `<line x1="50" y1="190" x2="250" y2="190" stroke="${C.m}" stroke-width="4" stroke-linecap="round" ${fadeIn(0.8)}/>`;
-    
-    // Carry over logic
+    s += txt(cx - 80, 155, '+', C.o, 34, fadeIn(0.3));
+
+    // Number B row (y=150)
+    if (bTens > 0) s += txt(tensX, 155, bTens, C.p, 34, fadeIn(0.35));
+    s += txt(onesX, 155, bOnes, C.g, 34, fadeIn(0.4));
+
+    // Divider line
+    s += `<line x1="${cx-90}" y1="180" x2="${cx+90}" y2="180" stroke="${C.m}" stroke-width="3.5" stroke-linecap="round" ${fadeIn(0.6)}/>`;
+    s += `<line x1="${cx-90}" y1="184" x2="${cx+90}" y2="184" stroke="${C.m}" stroke-width="1.5" stroke-linecap="round" opacity="0.3" ${fadeIn(0.6)}/>`;
+
+    // Carry indicator
     if (carry) {
-      s += circ(120, 85, 12, 'rgba(245,158,11,0.2)', fadeIn(1.2));
-      s += txt(120, 90, '1', C.o, 14, fadeIn(1.25));
-      
-      // Animate carry arrow from ones to tens
-      s += `<path d="M 180 205 Q 150 230 120 105" fill="none" stroke="${C.o}" stroke-width="2" stroke-dasharray="4 4" opacity="0"><animate attributeName="opacity" values="0;0.5;0" dur="2s" begin="1.4s" repeatCount="indefinite"/></path>`;
+      s += `<circle cx="${tensX}" cy="73" r="14" fill="rgba(245,158,11,0.15)" stroke="${C.o}" stroke-width="2" ${fadeIn(0.9)}/>`;
+      s += txt(tensX, 78, '1', C.o, 15, fadeIn(0.95));
+      // Carry arrow
+      s += `<path d="M ${onesX} 170 Q ${cx} 200 ${tensX+14} 86" fill="none" stroke="${C.o}" stroke-width="2" stroke-dasharray="5 3" opacity="0"><animate attributeName="opacity" values="0;0.6;0" dur="2.5s" begin="1s" repeatCount="indefinite"/></path>`;
+      // Carry label
+      s += `<text x="${cx+60}" y="200" text-anchor="start" fill="${C.o}" font-size="11" font-weight="700" font-family="Outfit" ${fadeIn(1.1)}>carry 1</text>`;
     }
-    
-    // Result
+
+    // Result row (y=230)
     if (showTotal) {
-      if (sumTens > 0) s += txt(120, 235, sumTens, C.p, 36, fadeIn(carry ? 1.8 : 1.2));
-      s += txt(180, 235, sumOnes, C.g, 36, fadeIn(carry ? 1.0 : 1.0));
+      if (sumTens > 0) s += txt(tensX, 230, sumTens, C.p, 38, fadeIn(carry ? 1.4 : 1.0));
+      s += txt(onesX, 230, sumOnes, C.g, 38, fadeIn(carry ? 1.5 : 1.1));
+      // Result underline
+      s += `<rect x="${cx-60}" y="240" width="120" height="4" rx="2" fill="url(#alg2)" ${fadeIn(carry?1.6:1.2)}/>`;
+      s += `<defs><linearGradient id="alg2"><stop offset="0%" stop-color="${C.p}"/><stop offset="100%" stop-color="${C.g}"/></linearGradient></defs>`;
+      // Equation summary
+      s += txt(cx, 280, `${a} + ${b} = ${sum}`, C.w, 16, fadeIn(carry?1.8:1.4));
     } else {
-      if (sumTens > 0) s += txt(120, 235, '?', C.p, 36, fadeIn(carry ? 1.8 : 1.2));
-      s += txt(180, 235, '?', C.g, 36, fadeIn(carry ? 1.0 : 1.0));
+      s += txt(tensX, 230, '?', '#94a3b8', 38, fadeIn(0.9));
+      s += txt(onesX, 230, '?', '#94a3b8', 38, fadeIn(1.0));
     }
-    
+
+    // Step annotations on right side
+    s += `<text x="${cx+95}" y="105" text-anchor="start" fill="${C.m}" font-size="10" font-family="Outfit" ${fadeIn(0.2)}>← ${a}</text>`;
+    s += `<text x="${cx+95}" y="155" text-anchor="start" fill="${C.m}" font-size="10" font-family="Outfit" ${fadeIn(0.4)}>← ${b}</text>`;
+
     return s + '</svg>';
   }
 };
