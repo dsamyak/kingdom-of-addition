@@ -265,61 +265,80 @@ export const SVG = {
 
   splitMerge(a,b,showTotal=true){
     const sum=a+b,need=10-a,left=b-need;
-    const w=540,h=340;
+    const w=540,h=300;
     let s=svgOpen(w,h);
     // Defs
-    s+=`<defs><linearGradient id="smg1"><stop offset="0%" stop-color="${C.p}"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>`;
-    s+=`<linearGradient id="smg2"><stop offset="0%" stop-color="${C.r}"/><stop offset="100%" stop-color="#f472b6"/></linearGradient>`;
-    s+=`<linearGradient id="smg3"><stop offset="0%" stop-color="${C.o}"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient>`;
-    s+=`<linearGradient id="smg4"><stop offset="0%" stop-color="${C.g}"/><stop offset="100%" stop-color="#34d399"/></linearGradient></defs>`;
-    // Title
-    s+=`<rect x="170" y="4" width="200" height="24" rx="12" fill="rgba(127,90,240,0.08)" stroke="${C.p}" stroke-width="1"/>`;
-    s+=txt(270,20,'Split-and-Merge Method',C.p,11);
-    // ── Row 1: original numbers ──
-    s+=`<rect x="130" y="34" width="80" height="48" rx="14" fill="url(#smg1)" ${fadeIn(0.1)}/>`;
-    s+=txt(170,66,a,'#fff',28,fadeIn(0.15));
-    s+=txt(270,66,'+',C.o,30,fadeIn(0.2));
-    s+=`<rect x="330" y="34" width="80" height="48" rx="14" fill="url(#smg4)" ${fadeIn(0.1)}/>`;
-    s+=txt(370,66,b,'#fff',28,fadeIn(0.15));
-    // ── Step 1 badge ──
-    s+=`<rect x="305" y="92" width="130" height="20" rx="10" fill="rgba(229,49,112,0.1)" ${fadeIn(0.3)}/>`;
-    s+=`<text x="370" y="106" text-anchor="middle" fill="${C.r}" font-size="10" font-weight="700" font-family="Outfit" ${fadeIn(0.35)}>Step 1: Split ${b}</text>`;
-    // Split arrows from b-box
-    s+=`<line x1="350" y1="86" x2="305" y2="130" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.4)}/>`;
-    s+=`<line x1="390" y1="86" x2="435" y2="130" stroke="${C.o}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.4)}/>`;
-    // Split pieces
-    s+=`<rect x="270" y="135" width="70" height="40" rx="10" fill="url(#smg2)" ${fadeIn(0.5)}/>`;
-    s+=txt(305,162,need,'#fff',20,fadeIn(0.55));
-    s+=`<rect x="400" y="135" width="70" height="40" rx="10" fill="url(#smg3)" ${fadeIn(0.5)}/>`;
-    s+=txt(435,162,left,'#fff',20,fadeIn(0.55));
-    // Labels under split
-    s+=`<text x="305" y="190" text-anchor="middle" fill="${C.r}" font-size="9" font-family="Outfit" ${fadeIn(0.6)}>to make 10</text>`;
-    s+=`<text x="435" y="190" text-anchor="middle" fill="${C.o}" font-size="9" font-family="Outfit" ${fadeIn(0.6)}>leftover</text>`;
-    // ── Step 2 badge ──
-    s+=`<rect x="60" y="115" width="130" height="20" rx="10" fill="rgba(127,90,240,0.1)" ${fadeIn(0.65)}/>`;
-    s+=`<text x="125" y="129" text-anchor="middle" fill="${C.p}" font-size="10" font-weight="700" font-family="Outfit" ${fadeIn(0.7)}>Step 2: Make 10</text>`;
-    // Merge arrows: a down + need piece across into 10-box
-    s+=`<line x1="170" y1="86" x2="170" y2="210" stroke="${C.p}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.75)}/>`;
-    s+=`<line x1="290" y1="178" x2="220" y2="218" stroke="${C.r}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.75)}/>`;
-    // Equation label
-    s+=`<text x="95" y="175" text-anchor="middle" fill="${C.p}" font-size="11" font-weight="700" font-family="Outfit" ${fadeIn(0.8)}>${a} + ${need} = 10</text>`;
-    // Result: 10 box
-    s+=`<rect x="120" y="215" width="110" height="50" rx="14" fill="url(#smg1)" ${fadeIn(0.9)}/>`;
-    s+=txt(175,248,10,'#fff',28,fadeIn(0.95));
+    s+=`<defs>
+      <radialGradient id="sm1" cx="30%" cy="30%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="${C.p}"/></radialGradient>
+      <radialGradient id="sm2" cx="30%" cy="30%"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="${C.g}"/></radialGradient>
+      <radialGradient id="sm3" cx="30%" cy="30%"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="${C.o}"/></radialGradient>
+      <radialGradient id="sm4" cx="30%" cy="30%"><stop offset="0%" stop-color="#fca5a5"/><stop offset="100%" stop-color="${C.r}"/></radialGradient>
+      <filter id="glw"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>`;
+
+    // Step 1: a + b
+    // A bubble
+    s+=`<circle cx="140" cy="50" r="28" fill="url(#sm1)" filter="url(#glw)" ${fadeIn(0.1)}/>`;
+    s+=txt(140, 58, a, '#fff', 24, fadeIn(0.15));
+    // Plus
+    s+=txt(210, 58, '+', C.o, 28, fadeIn(0.2));
+    // B bubble
+    s+=`<circle cx="280" cy="50" r="28" fill="url(#sm2)" filter="url(#glw)" ${fadeIn(0.1)}/>`;
+    s+=txt(280, 58, b, '#fff', 24, fadeIn(0.15));
+
+    // Split Lines
+    s+=`<path d="M 280 78 Q 250 100 220 115" fill="none" stroke="${C.r}" stroke-width="2.5" stroke-dasharray="6 4" ${fadeIn(0.4)}/>`;
+    s+=`<path d="M 280 78 Q 310 100 340 115" fill="none" stroke="${C.o}" stroke-width="2.5" stroke-dasharray="6 4" ${fadeIn(0.4)}/>`;
+
+    // Split Bubbles (Need and Left)
+    s+=`<circle cx="220" cy="130" r="22" fill="url(#sm4)" filter="url(#glw)" ${fadeIn(0.5)}/>`;
+    s+=txt(220, 137, need, '#fff', 20, fadeIn(0.55));
+    s+=`<text x="220" y="168" text-anchor="middle" fill="${C.m}" font-size="11" font-weight="600" ${fadeIn(0.6)}>needs ${need}</text>`;
+
+    s+=`<circle cx="340" cy="130" r="22" fill="url(#sm3)" filter="url(#glw)" ${fadeIn(0.5)}/>`;
+    s+=txt(340, 137, left, '#fff', 20, fadeIn(0.55));
+    s+=`<text x="340" y="168" text-anchor="middle" fill="${C.m}" font-size="11" font-weight="600" ${fadeIn(0.6)}>leftover</text>`;
+
+    // Merge Lines to 10
+    s+=`<path d="M 140 78 Q 140 150 180 200" fill="none" stroke="${C.p}" stroke-width="2.5" ${fadeIn(0.7)}/>`;
+    s+=`<path d="M 220 152 Q 220 180 180 200" fill="none" stroke="${C.p}" stroke-width="2.5" ${fadeIn(0.7)}/>`;
+
+    // Drop line for Leftover
+    s+=`<path d="M 340 152 L 340 200" fill="none" stroke="${C.o}" stroke-width="2.5" stroke-dasharray="6 4" ${fadeIn(0.7)}/>`;
+
+    // The 10 Bubble
+    s+=`<circle cx="180" cy="230" r="30" fill="url(#sm1)" filter="url(#glw)" ${fadeIn(0.9)}/>`;
+    s+=txt(180, 238, 10, '#fff', 26, fadeIn(0.95));
+
     // Plus sign
-    s+=txt(280,248,'+',C.o,28,fadeIn(1.05));
-    // Leftover box
-    s+=`<rect x="320" y="215" width="80" height="50" rx="14" fill="url(#smg3)" ${fadeIn(1.1)}/>`;
-    s+=txt(360,248,left,'#fff',28,fadeIn(1.15));
-    // Arrow from leftover piece down
-    s+=`<line x1="435" y1="178" x2="370" y2="213" stroke="${C.o}" stroke-width="2" stroke-dasharray="5 3" ${fadeIn(0.95)}/>`;
-    // ── Step 3 badge ──
-    s+=`<rect x="170" y="278" width="200" height="20" rx="10" fill="rgba(44,182,125,0.1)" ${fadeIn(1.2)}/>`;
-    s+=`<text x="270" y="292" text-anchor="middle" fill="${C.g}" font-size="10" font-weight="700" font-family="Outfit" ${fadeIn(1.25)}>Step 3: Add the rest</text>`;
-    // Final answer
-    const ansText = showTotal ? `10 + ${left} = ${sum}` : `10 + ${left} = ?`;
-    s+=`<rect x="170" y="305" width="200" height="30" rx="10" fill="rgba(44,182,125,0.08)" ${fadeIn(1.3)}/>`;
-    s+=`<text x="270" y="326" text-anchor="middle" fill="${C.w}" font-size="20" font-weight="800" font-family="Outfit" ${fadeIn(1.35)}>${ansText}</text>`;
+    s+=txt(260, 238, '+', C.o, 28, fadeIn(1.0));
+
+    // Leftover Down Bubble
+    s+=`<circle cx="340" cy="230" r="26" fill="url(#sm3)" filter="url(#glw)" ${fadeIn(1.1)}/>`;
+    s+=txt(340, 238, left, '#fff', 24, fadeIn(1.15));
+
+    // Equals sign
+    s+=txt(410, 238, '=', C.o, 28, fadeIn(1.2));
+
+    // Final Sum Bubble
+    if (showTotal) {
+      s+=`<circle cx="480" cy="230" r="32" fill="url(#sm2)" filter="url(#glw)" ${fadeIn(1.3)}/>`;
+      s+=txt(480, 240, sum, '#fff', 30, fadeIn(1.35));
+    } else {
+      s+=`<circle cx="480" cy="230" r="32" fill="rgba(200,200,200,0.06)" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="6 4" ${fadeIn(1.3)}/>`;
+      s+=txt(480, 240, '?', '#94a3b8', 30, fadeIn(1.35));
+    }
+
+    // Explanatory Text Overlays
+    s+=`<rect x="400" y="20" width="120" height="24" rx="12" fill="rgba(229,49,112,0.1)" ${fadeIn(0.2)}/>`;
+    s+=txt(460, 36, "Step 1: Split", C.r, 11, 'font-weight="700"');
+
+    s+=`<rect x="40" y="160" width="100" height="24" rx="12" fill="rgba(127,90,240,0.1)" ${fadeIn(0.8)}/>`;
+    s+=txt(90, 176, "Step 2: Make 10", C.p, 11, 'font-weight="700"');
+
+    s+=`<rect x="230" y="275" width="160" height="24" rx="12" fill="rgba(44,182,125,0.1)" ${fadeIn(1.4)}/>`;
+    s+=txt(310, 291, "Step 3: Add Leftover", C.g, 11, 'font-weight="700"');
+
     return s+'</svg>';
   },
 
